@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.core.portfolio.vendor.service;
+package africa.springCore.martbackend.portfolio.vendor.service;
 
 import africa.springCore.martbackend.common.utils.MartMapper;
 import africa.springCore.martbackend.core.portfolio.vendor.domain.dtos.requests.VendorRegistrationDocumentCreationRequest;

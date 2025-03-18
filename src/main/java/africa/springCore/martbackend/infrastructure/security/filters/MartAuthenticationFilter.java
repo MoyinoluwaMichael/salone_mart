@@ -57,9 +57,7 @@ public class MartAuthenticationFilter extends UsernamePasswordAuthenticationFilt
             email = loginRequest.getEmail();
             String password = loginRequest.getPassword();
             Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
-            System.out.println(email);
             Authentication authResult = authenticationManager.authenticate(authentication);
-            System.out.println("Authenticated");
             SecurityContextHolder.getContext().setAuthentication(authResult);
             return authResult;
         }catch (Exception exception){
