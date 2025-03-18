@@ -51,8 +51,8 @@ public class ProductCategoryApiResource {
     @GetMapping("")
     @Operation(summary = "Find all Product Categories")
     public ResponseEntity<ProductCategoryListingDto> getAllProductCategories(
-            @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
-    ) throws ProductCategoryNotFoundException, MapperException {
+            @PageableDefault(size = 20, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
         ProductCategoryListingDto postProductCategoryResponse = productCategoryService.getAllProductCategories(pageable);
         return ResponseEntity.ok(postProductCategoryResponse);
     }
