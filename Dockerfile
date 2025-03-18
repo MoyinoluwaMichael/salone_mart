@@ -5,6 +5,6 @@ COPY src src
 RUN mvn clean package -DskipTests
 
 FROM openjdk:17.0.1-jdk-slim
-COPY --from=build /target/deliChopsBackend-1.0-SNAPSHOT.jar deliChopsBackend.jar
+COPY --from=build /target/martBackend-1.0-SNAPSHOT.jar martBackend.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "deliChopsBackend.jar"]
+ENTRYPOINT ["java", "-jar", "martBackend.jar"]

@@ -53,7 +53,7 @@
 <body>
     <div class="container">
         <h1>Hi,</h1>
-                    <p>You've been selected as an admin on Deli-Chops App. Your expertise will play a crucial role in shaping our platform.
+                    <p>You've been selected as an admin on Salone Mart App. Your expertise will play a crucial role in shaping our platform.
                     <br>
                     Kindly click the registration button below to get started and start managing with impact.
                     <br>
