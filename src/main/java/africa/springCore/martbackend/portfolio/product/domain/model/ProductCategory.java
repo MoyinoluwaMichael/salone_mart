@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.core.portfolio.product.domain.model;
+package africa.springCore.martbackend.portfolio.product.domain.model;
 
 import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
 import jakarta.persistence.*;
@@ -23,5 +23,9 @@ public class ProductCategory extends BaseEntity {
 
     @Column(name = "name", nullable = true, unique = true)
     private String name;
+
+    public static ProductCategory instance(String name) {
+        return new ProductCategory(null, name);
+    }
 
 }
