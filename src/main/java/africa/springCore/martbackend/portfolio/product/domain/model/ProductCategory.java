@@ -1,8 +1,17 @@
 package africa.springCore.martbackend.portfolio.product.domain.model;
 
 import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serial;
 
@@ -21,11 +30,19 @@ public class ProductCategory extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", nullable = true, unique = true)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    public static ProductCategory instance(String name) {
-        return new ProductCategory(null, name);
-    }
+    @Column(name = "description")
+    private String description;
 
+    @Column(name = "brand")
+    private String brand;
+
+    @Column(name = "type")
+    private String type;
+
+    public static ProductCategory instance(String name, String description, String brand, String type) {
+        return new ProductCategory(null, name, description, brand, type);
+    }
 }

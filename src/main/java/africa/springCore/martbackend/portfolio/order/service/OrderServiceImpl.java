@@ -5,7 +5,6 @@ import africa.springCore.martbackend.common.utils.MartMapper;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderNotFoundException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderUpdateFailedException;
-import africa.springCore.martbackend.core.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
 import africa.springCore.martbackend.infrastructure.configuration.ApplicationProperty;
@@ -19,6 +18,7 @@ import africa.springCore.martbackend.portfolio.order.domain.dtos.response.OrderR
 import africa.springCore.martbackend.portfolio.order.domain.dtos.response.ProductOrderResponseDto;
 import africa.springCore.martbackend.portfolio.order.domain.model.Order;
 import africa.springCore.martbackend.portfolio.order.domain.repository.OrderRepository;
+import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.product.service.ProductService;
 import africa.springCore.martbackend.portfolio.vendor.service.VendorService;

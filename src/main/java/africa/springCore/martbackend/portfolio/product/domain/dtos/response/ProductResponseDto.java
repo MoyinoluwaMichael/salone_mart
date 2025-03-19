@@ -1,6 +1,7 @@
 package africa.springCore.martbackend.portfolio.product.domain.dtos.response;
 
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryResponseDto;
+import africa.springCore.martbackend.portfolio.product.domain.model.ProductInterest;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -26,5 +27,7 @@ public class ProductResponseDto {
 
     private Long quantity;
 
-    private BigDecimal priceInterestInPercentage;
+    private BigDecimal discountedPrice;
+
+    private ProductInterest interest;
 }

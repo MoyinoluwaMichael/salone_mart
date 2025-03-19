@@ -2,18 +2,20 @@ package africa.springCore.martbackend.portfolio.product.service;
 
 import africa.springCore.martbackend.common.enums.ApprovalStatus;
 import africa.springCore.martbackend.common.utils.MartMapper;
-import africa.springCore.martbackend.core.portfolio.product.domain.dtos.request.ProductCreationRequest;
-import africa.springCore.martbackend.core.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
 import africa.springCore.martbackend.infrastructure.configuration.ApplicationProperty;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.portfolio.product.domain.dtos.request.ProductCreationRequest;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryListingDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryResponseDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductListingDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductResponseDto;
+import africa.springCore.martbackend.portfolio.product.domain.enums.ProductCategoryEnum;
+import africa.springCore.martbackend.portfolio.product.domain.model.Product;
+import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 import static africa.springCore.martbackend.common.Message.PRODUCT_WITH_ID_NOT_FOUND;
 import static africa.springCore.martbackend.common.utils.AppUtils.CATEGORY_NAME;
@@ -48,10 +51,13 @@ public class ProductServiceImpl implements ProductService {
         if (vendorResponseDto.getApprovalStatus() != ApprovalStatus.APPROVED) {
             throw new ProductCreationFailedException("Vendor with id " + vendorId + " is not in approved state");
         }
-        if (productRepository.findByVendorIdAndNameAndCategoryId(vendorId, productCreationRequest.getName(), productCreationRequest.getCategoryId()).isPresent()) {
-            throw new ProductCreationFailedException("Vendor with id " + vendorId + " already created product with name: " + productCreationRequest.getName() + " and category Id " + productCreationRequest.getCategoryId());
+        ProductCategoryEnum productCategoryEnum = ProductCategoryEnum.instanceOf(productCreationRequest.getCategory());
+        if (productCategoryEnum == null) {
+            throw new ProductCreationFailedException("Invalid category");
         }
-        findProductCategoryById(productCreationRequest.getCategoryId());
+        if (productRepository.findByVendorIdAndNameAndCategory_Name(vendorId, productCreationRequest.getName(), productCategoryEnum.name()).isPresent()) {
+            throw new ProductCreationFailedException("Vendor with id " + vendorId + " already created product with name: " + productCreationRequest.getName() + " and category name " + productCreationRequest.getCategory());
+        }
         if (productCreationRequest.getQuantity() < 1) {
             throw new ProductCreationFailedException("Product quantity must be at least one");
         }
@@ -59,18 +65,25 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductCreationFailedException("Price cannot be less than ten");
         }
         Product product = martMapper.readValue(productCreationRequest, Product.class);
-        product.setPrice(getSystemPrice(productCreationRequest.getPrice()));
-        product.setCategoryId(productCreationRequest.getCategoryId());
+        product.setPrice(productCreationRequest.getPrice());
+        ProductCategory productCategory = new ProductCategory();
+        productCategory.setName(productCategoryEnum.name());
+        productCategory.setBrand(productCreationRequest.getBrand());
+        productCategory.setType(productCreationRequest.getType());
+        product.setCategory(productCategory);
         product.setVendorId(vendorId);
-        product.setPriceInterestInPercentage(applicationProperty.getPriceInterest());
+        if (productCreationRequest.getInterest() != null && productCreationRequest.getInterest() > 0) {
+            product.setInterest(productCreationRequest.getInterest());
+            product.setDiscountedPrice(getDiscountedPrice(productCreationRequest));
+        }
         return getProductResponseDto(productRepository.save(product));
     }
 
-    private BigDecimal getSystemPrice(BigDecimal price) {
-        BigDecimal interestInPercentage = applicationProperty.getPriceInterest();
+    private BigDecimal getDiscountedPrice(ProductCreationRequest request) {
+        BigDecimal interestInPercentage = BigDecimal.valueOf(request.getInterest());
         BigDecimal interestInDecimal = interestInPercentage.divide(BigDecimal.valueOf(100), 3, RoundingMode.HALF_UP);
-        BigDecimal priceInterest = price.multiply(interestInDecimal).setScale(3, RoundingMode.HALF_UP);
-        return price.add(priceInterest).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal priceInterest = request.getPrice().multiply(interestInDecimal).setScale(3, RoundingMode.HALF_UP);
+        return request.getPrice().subtract(priceInterest).setScale(0, RoundingMode.HALF_UP);
     }
 
     private ProductCategoryResponseDto findProductCategoryById(Long categoryId) throws ProductCategoryNotFoundException, MapperException {
@@ -82,10 +95,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private ProductResponseDto getProductResponseDto(Product product) throws MapperException, ProductCategoryNotFoundException {
-        ProductCategoryResponseDto productCategoryResponseDto = findProductCategoryById(product.getCategoryId());
-        ProductResponseDto productResponseDto = martMapper.readValue(product, ProductResponseDto.class);
-        productResponseDto.setCategory(productCategoryResponseDto);
-        return productResponseDto;
+        return martMapper.readValue(product, ProductResponseDto.class);
     }
 
     @Override
@@ -112,9 +122,9 @@ public class ProductServiceImpl implements ProductService {
         if (searchParam.equals(PRODUCT_NAME)) {
             criteria.setName(value);
         } else if (searchParam.equals(CATEGORY_NAME)) {
-            ProductCategoryListingDto productCategoryListingDto = productCategoryService.searchByName(value, pageable);
-            if (productCategoryListingDto.getProductCategories().size() > 0) {
-                criteria.setCategoryId(productCategoryListingDto.getProductCategories().get(0).getId());
+            List<ProductCategory> productCategories = productCategoryService.searchByName(value);
+            if (!productCategories.isEmpty()) {
+                criteria.setCategory(productCategories.get(0));
             }
         }
         Example<Product> example = Example.of(criteria, matcher);

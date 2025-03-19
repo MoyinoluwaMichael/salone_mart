@@ -3,11 +3,13 @@ package africa.springCore.martbackend.common.utils;
 public class SecurityUtils {
 
     public static final String LOGIN_ENDPOINT = "/api/v1/login";
+    public static final String PRODUCT_CATEGORY_ENDPOINT = "/api/v1/products/categories";
 
     public static String[] getAuthWhiteList() {
         return new String[]{
                 "/api/v1/health-check",
                 LOGIN_ENDPOINT,
+                PRODUCT_CATEGORY_ENDPOINT,
                 "/v2/api-docs",
                 "/v3/api-docs",
                 "/v3/api-docs/**",

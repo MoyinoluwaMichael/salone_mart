@@ -74,7 +74,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, getGetUrlWhiteList())
                         .permitAll()
-                        .requestMatchers(HttpMethod.POST, getProductsAuthUrl()).hasAnyAuthority(VENDOR.name())
+                        .requestMatchers(HttpMethod.POST, getProductsAuthUrl()).hasAnyAuthority(VENDOR.name(), SUPER_ADMIN.name(), ORDINARY_ADMIN.name())
                         .requestMatchers(HttpMethod.POST, getVendorApprovalUrl()).hasAnyAuthority(ORDINARY_ADMIN.name(), SUPER_ADMIN.name())
                         .anyRequest()
                         .authenticated())

@@ -16,6 +16,5 @@ public class ApplicationProperty {
 
     private String jwtSigningSecret;
     private String adminInvitationClientUrl;
-    private BigDecimal priceInterest;
 
 }
