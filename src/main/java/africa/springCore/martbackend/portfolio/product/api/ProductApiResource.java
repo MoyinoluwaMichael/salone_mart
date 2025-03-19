@@ -1,11 +1,11 @@
 package africa.springCore.martbackend.portfolio.product.api;
 
-import africa.springCore.martbackend.core.portfolio.product.domain.dtos.request.ProductCreationRequest;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.portfolio.product.domain.dtos.request.ProductCreationRequest;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductListingDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductResponseDto;
 import africa.springCore.martbackend.portfolio.product.service.ProductService;

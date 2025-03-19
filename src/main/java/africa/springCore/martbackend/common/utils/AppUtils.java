@@ -3,8 +3,10 @@ package africa.springCore.martbackend.common.utils;
 public class AppUtils {
 
     public static final String EMAIL_VALUE = "email";
-    public static final String PRODUCT_NAME = "productName";
-    public static final String CATEGORY_NAME = "categoryName";
+    public static final String PRODUCT_NAME = "name";
+    public static final String CATEGORY_NAME = "category";
+    public static final String BRAND_NAME = "categoryName";
+    public static final String TYPE_NAME = "categoryName";
     public static final String ADMIN = "admin";
     public static final String FIRST_NAME = "firstName";
     public static final String LAST_NAME = "lastName";

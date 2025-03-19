@@ -3,6 +3,7 @@ package africa.springCore.martbackend.portfolio.product.api;
 import africa.springCore.martbackend.core.portfolio.product.domain.dtos.request.ProductCategoryCreationRequest;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
+import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryListingDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryResponseDto;
 import africa.springCore.martbackend.portfolio.product.service.ProductCategoryService;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RequestMapping("api/v1/products/categories")
 @RestController
@@ -50,10 +53,10 @@ public class ProductCategoryApiResource {
 
     @GetMapping("")
     @Operation(summary = "Find all Product Categories")
-    public ResponseEntity<ProductCategoryListingDto> getAllProductCategories(
+    public ResponseEntity<List<ProductCategoryDto>> getAllProductCategories(
             @PageableDefault(size = 20, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        ProductCategoryListingDto postProductCategoryResponse = productCategoryService.getAllProductCategories(pageable);
+        List<ProductCategoryDto> postProductCategoryResponse = productCategoryService.getAllProductCategories(pageable);
         return ResponseEntity.ok(postProductCategoryResponse);
     }
 }

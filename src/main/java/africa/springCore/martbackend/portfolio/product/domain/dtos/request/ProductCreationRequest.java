@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.core.portfolio.product.domain.dtos.request;
+package africa.springCore.martbackend.portfolio.product.domain.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,12 +20,20 @@ public class ProductCreationRequest {
     @NotBlank(message = "picture is mandatory")
     private String picture;
 
-    @NotNull(message = "categoryId is mandatory")
-    private Long categoryId;
+    @NotNull(message = "category is mandatory")
+    private String category;
+
+    @NotNull(message = "brand is mandatory")
+    private String brand;
+
+    @NotNull(message = "type is mandatory")
+    private String type;
 
     @NotNull(message = "price is mandatory")
     private BigDecimal price;
 
     @NotNull(message = "quantity is mandatory")
     private Long quantity;
+
+    private Long interest;
 }
