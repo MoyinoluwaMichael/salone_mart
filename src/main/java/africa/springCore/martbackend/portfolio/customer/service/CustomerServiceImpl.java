@@ -1,6 +1,7 @@
 package africa.springCore.martbackend.portfolio.customer.service;
 
 import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
+import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerCreationRequest;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerUpdateRequest;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
@@ -41,9 +42,11 @@ public class CustomerServiceImpl implements CustomerService {
     private final MartMapper martMapper;
     private final CustomerRepository customerRepository;
     private final VendorRepository vendorRepository;
+    private final BioDataRepository bioDataRepository;
 
     @Override
     public CustomerResponseDto createCustomer(CustomerCreationRequest customerCreationRequest) throws MartException, CustomerCreationFailedException {
+
         validateCustomerCreationRequest(customerCreationRequest);
         BioData customerBioData = martMapper.readValue(customerCreationRequest, BioData.class);
         customerBioData.setRoles(List.of(Role.CUSTOMER));
@@ -74,12 +77,13 @@ public class CustomerServiceImpl implements CustomerService {
         }
         Optional<Customer> foundCustomerByEmail = customerRepository.findByBioData_EmailAddress(emailAddress);
         Optional<Vendor> foundVendorByEmail = vendorRepository.findByBioData_EmailAddress(emailAddress);
+        Optional<BioData> foundUserByEmail = bioDataRepository.findByEmailAddress(emailAddress);
         if (foundCustomerByEmail.isPresent()) {
             throw new CustomerCreationFailedException(
                     String.format(CUSTOMER_WITH_EMAIL_ALREADY_EXISTS, emailAddress)
             );
         }
-        if (foundVendorByEmail.isPresent()) {
+        if (foundVendorByEmail.isPresent() || foundUserByEmail.isPresent()) {
             throw new CustomerCreationFailedException(
                     String.format(USER_WITH_EMAIL_ALREADY_EXISTS, emailAddress)
             );
