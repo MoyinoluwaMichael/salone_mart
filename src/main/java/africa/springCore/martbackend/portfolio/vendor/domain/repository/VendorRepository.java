@@ -1,6 +1,6 @@
-package africa.springCore.martbackend.core.portfolio.vendor.domain.repository;
+package africa.springCore.martbackend.portfolio.vendor.domain.repository;
 
-import africa.springCore.martbackend.core.portfolio.vendor.domain.model.Vendor;
+import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

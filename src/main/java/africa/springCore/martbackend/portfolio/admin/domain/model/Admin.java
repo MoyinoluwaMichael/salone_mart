@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.core.portfolio.admin.domain.model;
+package africa.springCore.martbackend.portfolio.admin.domain.model;
 
 import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
 import africa.springCore.martbackend.core.base.domain.model.BioData;
@@ -25,4 +25,5 @@ public class Admin extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private BioData bioData;
+
 }

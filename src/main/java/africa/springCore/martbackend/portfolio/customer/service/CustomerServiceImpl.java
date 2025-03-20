@@ -5,19 +5,21 @@ import africa.springCore.martbackend.core.base.domain.repository.BioDataReposito
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerCreationRequest;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerUpdateRequest;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
-import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerUpdateFailedException;
 import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.core.portfolio.customer.domain.model.Customer;
-import africa.springCore.martbackend.core.portfolio.customer.domain.repository.CustomerRepository;
 import africa.springCore.martbackend.common.enums.Role;
 import africa.springCore.martbackend.common.utils.MartMapper;
-import africa.springCore.martbackend.core.portfolio.vendor.domain.model.Vendor;
-import africa.springCore.martbackend.core.portfolio.vendor.domain.repository.VendorRepository;
+import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
 import africa.springCore.martbackend.portfolio.customer.domain.dtos.responses.CustomerListingDto;
 import africa.springCore.martbackend.portfolio.customer.domain.dtos.responses.CustomerResponseDto;
+import africa.springCore.martbackend.portfolio.customer.domain.model.Customer;
+import africa.springCore.martbackend.portfolio.customer.domain.repository.CustomerRepository;
+import africa.springCore.martbackend.portfolio.customer.exception.CustomerUpdateFailedException;
+import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
+import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
@@ -43,6 +45,7 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final VendorRepository vendorRepository;
     private final BioDataRepository bioDataRepository;
+    private final CloudinaryUploadService cloudinaryUploadService;
 
     @Override
     public CustomerResponseDto createCustomer(CustomerCreationRequest customerCreationRequest) throws MartException, CustomerCreationFailedException {
@@ -153,7 +156,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponseDto updateCustomer(Long id, CustomerUpdateRequest customerUpdateRequest) throws CustomerCreationFailedException, UserNotFoundException, MapperException, CustomerUpdateFailedException {
+    public CustomerResponseDto updateCustomer(Long id, CustomerUpdateRequest customerUpdateRequest) throws CustomerCreationFailedException, UserNotFoundException, MapperException, CustomerUpdateFailedException, MediaUploadFailedException {
         boolean allFieldsAreEmpty = true;
         findById(id);
         Customer existingCustomer = customerRepository.findById(id).get();
@@ -176,11 +179,6 @@ public class CustomerServiceImpl implements CustomerService {
             allFieldsAreEmpty = false;
             existingCustomerBioData.setLastName(customerUpdateRequest.getLastName());
         }
-        if (customerUpdateRequest.getProfilePicture() != null && !StringUtils.isEmpty(customerUpdateRequest.getProfilePicture())) {
-            allFieldsAreEmpty = false;
-            existingCustomerBioData.setProfilePicture(customerUpdateRequest.getProfilePicture());
-        }
-
         if (allFieldsAreEmpty) throw new CustomerUpdateFailedException("No field specified for update");
         else {
             existingCustomer.setBioData(existingCustomerBioData);

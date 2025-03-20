@@ -8,20 +8,21 @@ import africa.springCore.martbackend.core.base.domain.model.BioData;
 import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
 import africa.springCore.martbackend.core.base.service.BioDataService;
 import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminInvitationRequest;
-import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
-import africa.springCore.martbackend.core.portfolio.admin.domain.model.Admin;
-import africa.springCore.martbackend.core.portfolio.admin.domain.repository.AdminRepository;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminNotFoundException;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminUpdateFailedException;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
+import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.configuration.ApplicationProperty;
 import africa.springCore.martbackend.infrastructure.exception.*;
 import africa.springCore.martbackend.common.utils.MartMapper;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.domain.data.Recipient;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.domain.dtos.EmailNotificationRequest;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.service.MailService;
+import africa.springCore.martbackend.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminListingDto;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminResponseDto;
+import africa.springCore.martbackend.portfolio.admin.domain.model.Admin;
+import africa.springCore.martbackend.portfolio.admin.domain.repository.AdminRepository;
 import com.auth0.jwt.interfaces.Claim;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -136,35 +137,31 @@ public class AdminServiceImpl implements AdminService {
     public AdminResponseDto updateAdmin(Long id, AdminUpdateRequest adminUpdateRequest) throws AdminNotFoundException, MapperException, AdminUpdateFailedException, UserNotFoundException, CustomerCreationFailedException {
         boolean allFieldsAreEmpty = true;
         findById(id);
-        Admin existingCustomer = adminRepository.findById(id).get();
-        BioData existingCustomerBioData = adminRepository.findById(id).get().getBioData();
+        Admin existingAdmin = adminRepository.findById(id).get();
+        BioData existingAdminBioData = adminRepository.findById(id).get().getBioData();
         if (adminUpdateRequest.getEmailAddress() != null && !StringUtils.isEmpty(adminUpdateRequest.getEmailAddress())) {
             allFieldsAreEmpty = false;
             validateEmailDuplicity(adminUpdateRequest.getEmailAddress());
-            existingCustomerBioData.setEmailAddress(adminUpdateRequest.getEmailAddress());
+            existingAdminBioData.setEmailAddress(adminUpdateRequest.getEmailAddress());
         }
         if (adminUpdateRequest.getPhoneNumber() != null && !StringUtils.isEmpty(adminUpdateRequest.getPhoneNumber())) {
             allFieldsAreEmpty = false;
             validatePhoneNumberDuplicity(adminUpdateRequest.getPhoneNumber());
-            existingCustomerBioData.setPhoneNumber(adminUpdateRequest.getPhoneNumber());
+            existingAdminBioData.setPhoneNumber(adminUpdateRequest.getPhoneNumber());
         }
         if (adminUpdateRequest.getFirstName() != null && !StringUtils.isEmpty(adminUpdateRequest.getFirstName())) {
             allFieldsAreEmpty = false;
-            existingCustomerBioData.setFirstName(adminUpdateRequest.getFirstName());
+            existingAdminBioData.setFirstName(adminUpdateRequest.getFirstName());
         }
         if (adminUpdateRequest.getLastName() != null && !StringUtils.isEmpty(adminUpdateRequest.getLastName())) {
             allFieldsAreEmpty = false;
-            existingCustomerBioData.setLastName(adminUpdateRequest.getLastName());
-        }
-        if (adminUpdateRequest.getProfilePicture() != null && !StringUtils.isEmpty(adminUpdateRequest.getProfilePicture())) {
-            allFieldsAreEmpty = false;
-            existingCustomerBioData.setProfilePicture(adminUpdateRequest.getProfilePicture());
+            existingAdminBioData.setLastName(adminUpdateRequest.getLastName());
         }
 
         if (allFieldsAreEmpty) throw new AdminUpdateFailedException("No field specified for update");
         else {
-            existingCustomer.setBioData(existingCustomerBioData);
-            return getAdminResponseDto(adminRepository.save(existingCustomer));
+            existingAdmin.setBioData(existingAdminBioData);
+            return getAdminResponseDto(adminRepository.save(existingAdmin));
         }
     }
 

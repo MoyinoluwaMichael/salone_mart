@@ -4,12 +4,12 @@ package africa.springCore.martbackend.portfolio.customer.api;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerCreationRequest;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerUpdateRequest;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
-import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerUpdateFailedException;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.customer.domain.dtos.responses.CustomerListingDto;
 import africa.springCore.martbackend.portfolio.customer.domain.dtos.responses.CustomerResponseDto;
+import africa.springCore.martbackend.portfolio.customer.exception.CustomerUpdateFailedException;
 import africa.springCore.martbackend.portfolio.customer.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("api/v1/customers")
 @RestController
@@ -39,7 +40,8 @@ public class CustomerApiResource {
     @Operation(summary = "Create a New Customer")
     @PostMapping("")
     public ResponseEntity<CustomerResponseDto> createCustomer(
-            @Valid @RequestBody CustomerCreationRequest customerCreationRequest) throws MartException, CustomerCreationFailedException {
+            @Valid @RequestBody CustomerCreationRequest customerCreationRequest
+    ) throws MartException, CustomerCreationFailedException {
 
         CustomerResponseDto postClientsResponse =
                 customerService.createCustomer(customerCreationRequest);

@@ -1,6 +1,7 @@
 package africa.springCore.martbackend.core.base.domain.dtos.response;
 
 import africa.springCore.martbackend.common.enums.Role;
+import africa.springCore.martbackend.portfolio.user.domain.model.Media;
 import lombok.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class BioDataResponseDto {
     private String lastName;
     private String phoneNumber;
     private String emailAddress;
-    private String profilePicture;
+    private List<Media> media;
     private List<Role> roles;
     private Boolean isEnabled;
 }

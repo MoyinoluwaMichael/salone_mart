@@ -1,11 +1,14 @@
-package africa.springCore.martbackend.core.portfolio.vendor.domain.dtos.requests;
+package africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests;
 
+import africa.springCore.martbackend.portfolio.user.domain.dto.FileMetaData;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -26,5 +29,5 @@ public class VendorCreationRequest {
 
     @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone number is invalid")
     private String phoneNumber;
-    private String profilePicture;
+
 }

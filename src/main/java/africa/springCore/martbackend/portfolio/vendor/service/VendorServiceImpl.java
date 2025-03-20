@@ -4,20 +4,21 @@ import africa.springCore.martbackend.common.enums.ApprovalStatus;
 import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
 import africa.springCore.martbackend.core.base.domain.model.BioData;
 import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
-import africa.springCore.martbackend.core.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
-import africa.springCore.martbackend.core.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
-import africa.springCore.martbackend.core.portfolio.vendor.domain.model.Vendor;
-import africa.springCore.martbackend.core.portfolio.vendor.domain.repository.VendorRepository;
 import africa.springCore.martbackend.common.enums.Role;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorApprovalFailedException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorCreationException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorUpdateException;
 import africa.springCore.martbackend.common.utils.MartMapper;
+import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
+import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorListingDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
+import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
+import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
@@ -37,12 +38,7 @@ import static africa.springCore.martbackend.common.Message.USER_WITH_ID_NOT_FOUN
 import static africa.springCore.martbackend.common.Message.USER_WITH_PHONE_NUMBER_ALREADY_EXISTS;
 import static africa.springCore.martbackend.common.Message.VENDOR_WITH_EMAIL_ALREADY_EXISTS;
 import static africa.springCore.martbackend.common.Message.VENDOR_WITH_PHONE_NUMBER_ALREADY_EXISTS;
-import static africa.springCore.martbackend.common.utils.AppUtils.APPROVE;
-import static africa.springCore.martbackend.common.utils.AppUtils.EMAIL_VALUE;
-import static africa.springCore.martbackend.common.utils.AppUtils.FIRST_NAME;
-import static africa.springCore.martbackend.common.utils.AppUtils.LAST_NAME;
-import static africa.springCore.martbackend.common.utils.AppUtils.PHONE_NUMBER;
-import static africa.springCore.martbackend.common.utils.AppUtils.REJECT;
+import static africa.springCore.martbackend.common.utils.AppUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +47,7 @@ public class VendorServiceImpl implements VendorService {
     private final MartMapper martMapper;
     private final VendorRepository vendorRepository;
     private final BioDataRepository bioDataRepository;
+    private final CloudinaryUploadService cloudinaryUploadService;
 
     @Override
     public VendorResponseDto findByEmail(String emailAddress) throws MapperException, UserNotFoundException {
@@ -183,8 +180,9 @@ public class VendorServiceImpl implements VendorService {
     public VendorResponseDto updateVendor(Long id, VendorUpdateRequest vendorUpdateRequest) throws VendorCreationException, UserNotFoundException, MapperException, VendorUpdateException {
         boolean allFieldsAreEmpty = true;
         findById(id);
-        Vendor existingVendor = vendorRepository.findById(id).get();
-        BioData existingVendorBioData = vendorRepository.findById(id).get().getBioData();
+        Vendor existingVendor = vendorRepository.findById(id).orElseThrow(() -> new UserNotFoundException(String.format(USER_WITH_ID_NOT_FOUND, id)));
+        BioData existingVendorBioData = existingVendor.getBioData();
+
         if (vendorUpdateRequest.getEmailAddress() != null && !StringUtils.isEmpty(vendorUpdateRequest.getEmailAddress())) {
             allFieldsAreEmpty = false;
             validateEmailDuplicity(vendorUpdateRequest.getEmailAddress());
@@ -202,10 +200,6 @@ public class VendorServiceImpl implements VendorService {
         if (vendorUpdateRequest.getLastName() != null && !StringUtils.isEmpty(vendorUpdateRequest.getLastName())) {
             allFieldsAreEmpty = false;
             existingVendorBioData.setLastName(vendorUpdateRequest.getLastName());
-        }
-        if (vendorUpdateRequest.getProfilePicture() != null && !StringUtils.isEmpty(vendorUpdateRequest.getProfilePicture())) {
-            allFieldsAreEmpty = false;
-            existingVendorBioData.setProfilePicture(vendorUpdateRequest.getProfilePicture());
         }
 
         if (allFieldsAreEmpty) throw new VendorUpdateException("No field specified for update");

@@ -1,6 +1,7 @@
 package africa.springCore.martbackend.portfolio.product.domain.model;
 
 import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
+import africa.springCore.martbackend.portfolio.user.domain.model.Media;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,8 @@ import lombok.ToString;
 
 import java.io.Serial;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -37,8 +40,8 @@ public class Product extends BaseEntity {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "picture", nullable = false)
-    private String picture;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Media> media = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     private ProductCategory category;
@@ -57,6 +60,7 @@ public class Product extends BaseEntity {
     private ProductInterest interest;
 
     public void setInterest(Long interest) {
-        this.interest = ProductInterest.instanceOf( true, interest);
+        this.interest = ProductInterest.instanceOf(true, interest);
     }
+
 }

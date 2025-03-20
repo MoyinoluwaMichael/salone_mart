@@ -3,13 +3,11 @@ package africa.springCore.martbackend.portfolio.product.service;
 import africa.springCore.martbackend.common.enums.ApprovalStatus;
 import africa.springCore.martbackend.common.utils.MartMapper;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
-import africa.springCore.martbackend.core.portfolio.product.exception.ProductCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
-import africa.springCore.martbackend.infrastructure.configuration.ApplicationProperty;
+import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.request.ProductCreationRequest;
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryListingDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryResponseDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductListingDto;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductResponseDto;
@@ -17,6 +15,7 @@ import africa.springCore.martbackend.portfolio.product.domain.enums.ProductCateg
 import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
+import africa.springCore.martbackend.portfolio.product.exception.ProductCreationFailedException;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +24,12 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static africa.springCore.martbackend.common.Message.PRODUCT_WITH_ID_NOT_FOUND;
 import static africa.springCore.martbackend.common.utils.AppUtils.CATEGORY_NAME;
@@ -42,12 +43,15 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductCategoryService productCategoryService;
     private final VendorService vendorService;
-    private final ApplicationProperty applicationProperty;
+    private final CloudinaryUploadService cloudinaryUploadService;
 
 
     @Override
-    public ProductResponseDto postAProduct(Long vendorId, ProductCreationRequest productCreationRequest) throws UserNotFoundException, MapperException, ProductCategoryNotFoundException, ProductCreationFailedException {
+    public ProductResponseDto postAProduct(Long vendorId, ProductCreationRequest productCreationRequest, MultipartFile file) throws UserNotFoundException, MapperException, ProductCategoryNotFoundException, ProductCreationFailedException {
         VendorResponseDto vendorResponseDto = vendorService.findById(vendorId);
+        if (file.isEmpty()){
+            throw new ProductCreationFailedException("Product image is required");
+        }
         if (vendorResponseDto.getApprovalStatus() != ApprovalStatus.APPROVED) {
             throw new ProductCreationFailedException("Vendor with id " + vendorId + " is not in approved state");
         }
@@ -76,7 +80,8 @@ public class ProductServiceImpl implements ProductService {
             product.setInterest(productCreationRequest.getInterest());
             product.setDiscountedPrice(getDiscountedPrice(productCreationRequest));
         }
-        return getProductResponseDto(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+        return getProductResponseDto(savedProduct);
     }
 
     private BigDecimal getDiscountedPrice(ProductCreationRequest request) {
