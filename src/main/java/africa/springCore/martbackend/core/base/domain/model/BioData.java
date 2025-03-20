@@ -1,6 +1,8 @@
 package africa.springCore.martbackend.core.base.domain.model;
 
 import africa.springCore.martbackend.common.enums.Role;
+import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
+import africa.springCore.martbackend.infrastructure.exception.UserUpdateFailedException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -11,10 +13,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -52,8 +59,8 @@ public class BioData implements Serializable {
     @Column(name = "phone_number", nullable = true, unique = true)
     private String phoneNumber;
 
-    @Column(name = "profile_picture", nullable = true, unique = false)
-    private String profilePicture;
+    @OneToMany(mappedBy = "bioData", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Media> media = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private List<Role> roles;
@@ -64,4 +71,59 @@ public class BioData implements Serializable {
     private LocalDateTime createdAt;
 
     private Boolean isEnabled;
+
+    public void addMedia(Media media) {
+        this.media.add(media);
+        media.setUser(this);
+    }
+
+    public void removeMedia(Media media, CloudinaryUploadService cloudinaryUploadService) throws UserUpdateFailedException {
+        this.media.remove(media);
+        media.setUser(null);
+        try {
+            cloudinaryUploadService.deleteFile(media.getPublicId());
+        } catch (Exception e) {
+            throw new UserUpdateFailedException(e.getMessage());
+        }
+    }
+
+    public Media getMediaByPurpose(String purpose) {
+        return this.media.stream()
+                .filter(m -> purpose.equals(m.getPurpose()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<Media> getMediaByType(MediaType type) {
+        return this.media.stream()
+                .filter(m -> type.equals(m.getType()))
+                .collect(Collectors.toList());
+    }
+
+    public Media getProfilePicture() {
+        return getMediaByPurpose("PROFILE_PICTURE");
+    }
+
+    public List<Media> getDocuments() {
+        return getMediaByType(MediaType.DOCUMENT);
+    }
+
+    public BioData uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, String mediaPurpose, MediaType mediaType) throws UserUpdateFailedException {
+        Map<String, Object> uploadResponse = new HashMap<>();
+        try {
+            uploadResponse = cloudinaryUploadService.uploadFile(file, "product");
+        } catch (Exception e) {
+            throw new UserUpdateFailedException("User image upload failed: "+ e.getMessage());
+        }
+        if (uploadResponse.containsKey("error")) {
+            throw new UserUpdateFailedException("User image upload failed");
+        }
+
+        String publicId = (String) uploadResponse.get("public_id");
+        String secureUrl = (String) uploadResponse.get("secure_url");
+        Media media = Media.userInstance(mediaType, mediaPurpose, publicId, secureUrl, file, this);
+        this.addMedia(media);
+        return this;
+    }
+
 }

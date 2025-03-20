@@ -10,6 +10,7 @@ import africa.springCore.martbackend.infrastructure.exception.*;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminListingDto;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminResponseDto;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface AdminService {
     ApiResponse sendInvitationLink(String emailAddress) throws MartException;
@@ -24,5 +25,5 @@ public interface AdminService {
 
     AdminResponseDto findById(Long id) throws AdminNotFoundException, MapperException;
 
-    AdminResponseDto updateAdmin(Long id, AdminUpdateRequest adminUpdateRequest) throws AdminNotFoundException, MapperException, AdminUpdateFailedException, UserNotFoundException, CustomerCreationFailedException;
+    AdminResponseDto updateAdmin(Long id, AdminUpdateRequest adminUpdateRequest, MultipartFile file) throws AdminNotFoundException, MapperException, AdminUpdateFailedException, UserNotFoundException, CustomerCreationFailedException;
 }

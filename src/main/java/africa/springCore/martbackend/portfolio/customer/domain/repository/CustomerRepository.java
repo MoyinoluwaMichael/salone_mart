@@ -1,6 +1,6 @@
-package africa.springCore.martbackend.core.portfolio.customer.domain.repository;
+package africa.springCore.martbackend.portfolio.customer.domain.repository;
 
-import africa.springCore.martbackend.core.portfolio.customer.domain.model.Customer;
+import africa.springCore.martbackend.portfolio.customer.domain.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

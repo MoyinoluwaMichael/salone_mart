@@ -16,5 +16,4 @@ public class CustomerUpdateRequest {
 
     @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone number is invalid")
     private String phoneNumber;
-    private String profilePicture;
 }

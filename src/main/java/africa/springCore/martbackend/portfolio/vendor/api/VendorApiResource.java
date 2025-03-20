@@ -1,13 +1,13 @@
 package africa.springCore.martbackend.portfolio.vendor.api;
 
-import africa.springCore.martbackend.core.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
-import africa.springCore.martbackend.core.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorApprovalFailedException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorCreationException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorUpdateException;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
+import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorListingDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
@@ -20,6 +20,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequestMapping("api/v1/vendors")
 @RestController
@@ -32,10 +35,12 @@ public class VendorApiResource {
     @Operation(summary = "Create a New Vendor")
     @PostMapping("")
     public ResponseEntity<VendorResponseDto> createVendor(
-            @Valid @RequestBody VendorCreationRequest vendorCreationRequest) throws MartException, VendorCreationException {
+            @Valid @RequestBody VendorCreationRequest vendorCreationRequest,
+            @RequestPart("files") List<MultipartFile> files
+    ) throws MartException, VendorCreationException {
 
         VendorResponseDto postClientsResponse =
-                vendorService.createVendor(vendorCreationRequest);
+                vendorService.createVendor(vendorCreationRequest, files);
 
         return ResponseEntity.ok(postClientsResponse);
     }
@@ -83,11 +88,12 @@ public class VendorApiResource {
     @PatchMapping("/{id}")
     public ResponseEntity<VendorResponseDto> updateVendor(
             @Valid @PathVariable(name = "id") Long id,
-            @Valid @RequestBody VendorUpdateRequest VendorUpdateRequest
+            @Valid @RequestBody VendorUpdateRequest VendorUpdateRequest,
+            List<MultipartFile> files
     ) throws MartException, VendorCreationException, VendorUpdateException {
         {
             VendorResponseDto vendor =
-                    vendorService.updateVendor(id, VendorUpdateRequest);
+                    vendorService.updateVendor(id, VendorUpdateRequest, files);
 
             return ResponseEntity.ok(vendor);
         }
