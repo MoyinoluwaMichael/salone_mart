@@ -1,6 +1,7 @@
 package africa.springCore.martbackend.infrastructure.exception.handler;
 
 import africa.springCore.martbackend.infrastructure.exception.MartException;
+import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -45,6 +46,15 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+        exceptionResponse.setMessage(errors.toString());
+        exceptionResponse.setTimestamp(LocalDateTime.now());
+        exceptionResponse.setErrorCode(BAD_REQUEST.value());
+        return new ResponseEntity<>(exceptionResponse, BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ExceptionResponse> handleValidationExceptions(MediaUploadFailedException errors) {
+        log.error("Exception::>> {}", errors.toString());
         exceptionResponse.setMessage(errors.toString());
         exceptionResponse.setTimestamp(LocalDateTime.now());
         exceptionResponse.setErrorCode(BAD_REQUEST.value());

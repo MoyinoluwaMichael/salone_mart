@@ -5,11 +5,9 @@ import africa.springCore.martbackend.common.enums.Role;
 import africa.springCore.martbackend.common.utils.JwtUtility;
 import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
 import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.core.base.domain.model.MediaType;
 import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
 import africa.springCore.martbackend.core.base.service.BioDataService;
 import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminInvitationRequest;
-import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminNotFoundException;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminUpdateFailedException;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
@@ -20,6 +18,7 @@ import africa.springCore.martbackend.common.utils.MartMapper;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.domain.data.Recipient;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.domain.dtos.EmailNotificationRequest;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.service.MailService;
+import africa.springCore.martbackend.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminListingDto;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminResponseDto;
 import africa.springCore.martbackend.portfolio.admin.domain.model.Admin;
@@ -32,13 +31,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static africa.springCore.martbackend.common.Message.*;
 import static africa.springCore.martbackend.common.utils.AppUtils.*;
@@ -57,7 +54,6 @@ public class AdminServiceImpl implements AdminService {
     private final BioDataService bioDataService;
     private final BioDataRepository bioDataRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CloudinaryUploadService cloudinaryUploadService;
 
 
     @Override
@@ -138,7 +134,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public AdminResponseDto updateAdmin(Long id, AdminUpdateRequest adminUpdateRequest, MultipartFile file) throws AdminNotFoundException, MapperException, AdminUpdateFailedException, UserNotFoundException, CustomerCreationFailedException {
+    public AdminResponseDto updateAdmin(Long id, AdminUpdateRequest adminUpdateRequest) throws AdminNotFoundException, MapperException, AdminUpdateFailedException, UserNotFoundException, CustomerCreationFailedException {
         boolean allFieldsAreEmpty = true;
         findById(id);
         Admin existingAdmin = adminRepository.findById(id).get();
@@ -160,17 +156,6 @@ public class AdminServiceImpl implements AdminService {
         if (adminUpdateRequest.getLastName() != null && !StringUtils.isEmpty(adminUpdateRequest.getLastName())) {
             allFieldsAreEmpty = false;
             existingAdminBioData.setLastName(adminUpdateRequest.getLastName());
-        }
-
-        if (!file.isEmpty()){
-            allFieldsAreEmpty = true;
-            CompletableFuture.supplyAsync(() -> {
-                try {
-                    return existingAdmin.uploadAndAddMedia(file, cloudinaryUploadService, "profilePicture", MediaType.PICTURE);
-                } catch (UserUpdateFailedException e) {
-                    throw new RuntimeException(e);
-                }
-            }).thenApplyAsync(adminRepository::save);
         }
 
         if (allFieldsAreEmpty) throw new AdminUpdateFailedException("No field specified for update");

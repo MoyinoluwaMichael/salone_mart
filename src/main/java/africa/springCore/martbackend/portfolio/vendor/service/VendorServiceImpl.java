@@ -3,8 +3,6 @@ package africa.springCore.martbackend.portfolio.vendor.service;
 import africa.springCore.martbackend.common.enums.ApprovalStatus;
 import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
 import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.core.base.domain.model.Media;
-import africa.springCore.martbackend.core.base.domain.model.MediaType;
 import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
 import africa.springCore.martbackend.common.enums.Role;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorApprovalFailedException;
@@ -15,8 +13,6 @@ import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
-import africa.springCore.martbackend.infrastructure.exception.UserUpdateFailedException;
-import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.FileMetaData;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorListingDto;
@@ -32,13 +28,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static africa.springCore.martbackend.common.Message.USER_WITH_EMAIL_ALREADY_EXISTS;
 import static africa.springCore.martbackend.common.Message.USER_WITH_EMAIL_NOT_FOUND;
@@ -46,12 +38,7 @@ import static africa.springCore.martbackend.common.Message.USER_WITH_ID_NOT_FOUN
 import static africa.springCore.martbackend.common.Message.USER_WITH_PHONE_NUMBER_ALREADY_EXISTS;
 import static africa.springCore.martbackend.common.Message.VENDOR_WITH_EMAIL_ALREADY_EXISTS;
 import static africa.springCore.martbackend.common.Message.VENDOR_WITH_PHONE_NUMBER_ALREADY_EXISTS;
-import static africa.springCore.martbackend.common.utils.AppUtils.APPROVE;
-import static africa.springCore.martbackend.common.utils.AppUtils.EMAIL_VALUE;
-import static africa.springCore.martbackend.common.utils.AppUtils.FIRST_NAME;
-import static africa.springCore.martbackend.common.utils.AppUtils.LAST_NAME;
-import static africa.springCore.martbackend.common.utils.AppUtils.PHONE_NUMBER;
-import static africa.springCore.martbackend.common.utils.AppUtils.REJECT;
+import static africa.springCore.martbackend.common.utils.AppUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -74,7 +61,7 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public VendorResponseDto createVendor(VendorCreationRequest vendorCreationRequest, List<MultipartFile> files) throws MartException, VendorCreationException {
+    public VendorResponseDto createVendor(VendorCreationRequest vendorCreationRequest) throws MartException, VendorCreationException {
         validateVendorCreationRequest(vendorCreationRequest);
         BioData vendorBioData = martMapper.readValue(vendorCreationRequest, BioData.class);
         vendorBioData.setRoles(List.of(Role.VENDOR));
@@ -86,23 +73,6 @@ public class VendorServiceImpl implements VendorService {
         vendor.setBioData(vendorBioData);
         vendor.setApprovalStatus(ApprovalStatus.PENDING_REVIEW);
         Vendor savedVendor = vendorRepository.save(vendor);
-
-        Map<String, FileMetaData> metadataMap = vendorCreationRequest.getFiles().stream()
-                .collect(Collectors.toMap(FileMetaData::getId, metadata -> metadata));
-
-        List<CompletableFuture<Void>> futures = files.stream()
-                .map(file -> CompletableFuture.runAsync(() -> {
-                    String fileId = file.getOriginalFilename();
-                    FileMetaData metadata = metadataMap.get(fileId);
-                    if (metadata != null) {
-                        uploadAndAddMedia(savedVendor, file, metadata);
-                    }
-                }))
-                .toList();
-        CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        allOf.thenRunAsync(() -> vendorRepository.save(savedVendor)).join();
-
-
         String savedVendorAsString = martMapper.writeValueAsString(savedVendor);
         try {
             return martMapper.readValue(savedVendorAsString, VendorResponseDto.class);
@@ -207,7 +177,7 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public VendorResponseDto updateVendor(Long id, VendorUpdateRequest vendorUpdateRequest, List<MultipartFile> files) throws VendorCreationException, UserNotFoundException, MapperException, VendorUpdateException {
+    public VendorResponseDto updateVendor(Long id, VendorUpdateRequest vendorUpdateRequest) throws VendorCreationException, UserNotFoundException, MapperException, VendorUpdateException {
         boolean allFieldsAreEmpty = true;
         findById(id);
         Vendor existingVendor = vendorRepository.findById(id).orElseThrow(() -> new UserNotFoundException(String.format(USER_WITH_ID_NOT_FOUND, id)));
@@ -232,49 +202,10 @@ public class VendorServiceImpl implements VendorService {
             existingVendorBioData.setLastName(vendorUpdateRequest.getLastName());
         }
 
-        if (!files.isEmpty()) {
-            allFieldsAreEmpty = false;
-            List<CompletableFuture<Void>> futures = files.stream()
-                    .map(file -> CompletableFuture.runAsync(() -> {
-                        String fileId = file.getOriginalFilename();
-                        FileMetaData metadata = vendorUpdateRequest.getFiles().stream()
-                                .filter(meta -> meta.getId().equals(fileId))
-                                .findFirst()
-                                .orElse(null);
-                        if (metadata != null) {
-                            Media media = existingVendor.getBioData().getMediaByPurpose(metadata.getKey());
-                            if (media != null) {
-                                try {
-                                    existingVendor.getBioData().removeMedia(media, cloudinaryUploadService);
-                                } catch (UserUpdateFailedException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
-                            uploadAndAddMedia(existingVendor, file, metadata);
-                        }
-                    }))
-                    .toList();
-            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            allOf.thenRunAsync(() -> vendorRepository.save(existingVendor)).join();
-        }
-
         if (allFieldsAreEmpty) throw new VendorUpdateException("No field specified for update");
         else {
             existingVendor.setBioData(existingVendorBioData);
             return getVendorResponseDto(vendorRepository.save(existingVendor));
-        }
-    }
-
-    private void uploadAndAddMedia(Vendor existingVendor, MultipartFile file, FileMetaData metadata) {
-        String contentType = file.getContentType();
-        try {
-            if (contentType != null && contentType.startsWith("image/")) {
-                existingVendor.uploadAndAddMedia(file, cloudinaryUploadService, metadata.getKey(), MediaType.PICTURE);
-            } else {
-                existingVendor.uploadAndAddMedia(file, cloudinaryUploadService, metadata.getKey(), MediaType.DOCUMENT);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error while uploading file");
         }
     }
 

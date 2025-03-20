@@ -1,10 +1,7 @@
 package africa.springCore.martbackend.portfolio.product.domain.model;
 
 import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
-import africa.springCore.martbackend.core.base.domain.model.Media;
-import africa.springCore.martbackend.core.base.domain.model.MediaType;
-import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
-import africa.springCore.martbackend.portfolio.product.exception.ProductCreationFailedException;
+import africa.springCore.martbackend.portfolio.user.domain.model.Media;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,14 +9,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serial;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Table(name = "product")
@@ -46,7 +40,7 @@ public class Product extends BaseEntity {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Media> media = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -69,26 +63,4 @@ public class Product extends BaseEntity {
         this.interest = ProductInterest.instanceOf(true, interest);
     }
 
-    public void addMedia(Media media) {
-        this.media.add(media);
-        media.setProduct(this);
-    }
-
-    public Product uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, String mediaType) throws ProductCreationFailedException {
-        Map<String, Object> uploadResponse = new HashMap<>();
-        try {
-            uploadResponse = cloudinaryUploadService.uploadFile(file, "product");
-        } catch (Exception e) {
-            throw new ProductCreationFailedException("Product image upload failed: "+ e.getMessage());
-        }
-        if (uploadResponse.containsKey("error")) {
-            throw new ProductCreationFailedException("Product image upload failed");
-        }
-
-        String publicId = (String) uploadResponse.get("public_id");
-        String secureUrl = (String) uploadResponse.get("secure_url");
-        Media media = Media.productInstance(MediaType.PRODUCT, mediaType, publicId, secureUrl, file, this);
-        this.addMedia(media);
-        return this;
-    }
 }

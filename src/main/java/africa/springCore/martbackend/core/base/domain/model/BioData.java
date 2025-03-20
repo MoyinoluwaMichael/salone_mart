@@ -2,7 +2,12 @@ package africa.springCore.martbackend.core.base.domain.model;
 
 import africa.springCore.martbackend.common.enums.Role;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
-import africa.springCore.martbackend.infrastructure.exception.UserUpdateFailedException;
+import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
+import africa.springCore.martbackend.portfolio.product.domain.model.Product;
+import africa.springCore.martbackend.portfolio.user.domain.model.DocumentType;
+import africa.springCore.martbackend.portfolio.user.domain.model.Media;
+import africa.springCore.martbackend.portfolio.user.domain.model.MediaCategory;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -59,7 +64,8 @@ public class BioData implements Serializable {
     @Column(name = "phone_number", nullable = true, unique = true)
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "bioData", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Media> media = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
@@ -74,54 +80,49 @@ public class BioData implements Serializable {
 
     public void addMedia(Media media) {
         this.media.add(media);
-        media.setUser(this);
     }
 
-    public void removeMedia(Media media, CloudinaryUploadService cloudinaryUploadService) throws UserUpdateFailedException {
+    public BioData removeMedia(Media media, CloudinaryUploadService cloudinaryUploadService) throws MediaUploadFailedException {
         this.media.remove(media);
-        media.setUser(null);
         try {
             cloudinaryUploadService.deleteFile(media.getPublicId());
         } catch (Exception e) {
-            throw new UserUpdateFailedException(e.getMessage());
+            throw new MediaUploadFailedException(e.getMessage());
         }
+        return this;
     }
 
-    public Media getMediaByPurpose(String purpose) {
+    public Media getDocumentTypeId(Long typeId) {
         return this.media.stream()
-                .filter(m -> purpose.equals(m.getPurpose()))
+                .filter(m -> typeId.equals(m.getDocumentType().getId()))
                 .findFirst()
                 .orElse(null);
     }
 
-    public List<Media> getMediaByType(MediaType type) {
+    public List<Media> getMediaByType(MediaCategory type) {
         return this.media.stream()
                 .filter(m -> type.equals(m.getType()))
                 .collect(Collectors.toList());
     }
 
-    public Media getProfilePicture() {
-        return getMediaByPurpose("PROFILE_PICTURE");
-    }
-
     public List<Media> getDocuments() {
-        return getMediaByType(MediaType.DOCUMENT);
+        return getMediaByType(MediaCategory.DOCUMENT);
     }
 
-    public BioData uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, String mediaPurpose, MediaType mediaType) throws UserUpdateFailedException {
+    public BioData uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, Product product, DocumentType documentType) throws MediaUploadFailedException {
         Map<String, Object> uploadResponse = new HashMap<>();
         try {
-            uploadResponse = cloudinaryUploadService.uploadFile(file, "product");
+            uploadResponse = cloudinaryUploadService.uploadFile(file, folderName);
         } catch (Exception e) {
-            throw new UserUpdateFailedException("User image upload failed: "+ e.getMessage());
+            throw new MediaUploadFailedException("User image upload failed: "+ e.getMessage());
         }
         if (uploadResponse.containsKey("error")) {
-            throw new UserUpdateFailedException("User image upload failed");
+            throw new MediaUploadFailedException("User image upload failed");
         }
 
         String publicId = (String) uploadResponse.get("public_id");
         String secureUrl = (String) uploadResponse.get("secure_url");
-        Media media = Media.userInstance(mediaType, mediaPurpose, publicId, secureUrl, file, this);
+        Media media = Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file);
         this.addMedia(media);
         return this;
     }

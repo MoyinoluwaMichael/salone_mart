@@ -3,6 +3,9 @@ package africa.springCore.martbackend.common.utils;
 public class AppUtils {
 
     public static final String EMAIL_VALUE = "email";
+    public static final String USER_PROFILE_FOLDER = "userprofile";
+    public static final String DOCUMENT_FOLDER = "document";
+    public static final String PRODUCT_FOLDER = "document";
     public static final String PRODUCT_NAME = "name";
     public static final String CATEGORY_NAME = "category";
     public static final String BRAND_NAME = "categoryName";

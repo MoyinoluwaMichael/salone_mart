@@ -2,8 +2,8 @@ package africa.springCore.martbackend.core.portfolio.product.domain.repository;
 
 import africa.springCore.martbackend.common.enums.Role;
 import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.core.portfolio.admin.domain.model.Admin;
-import africa.springCore.martbackend.core.portfolio.admin.domain.repository.AdminRepository;
+import africa.springCore.martbackend.portfolio.admin.domain.model.Admin;
+import africa.springCore.martbackend.portfolio.admin.domain.repository.AdminRepository;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

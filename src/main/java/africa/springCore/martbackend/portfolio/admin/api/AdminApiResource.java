@@ -2,13 +2,13 @@ package africa.springCore.martbackend.portfolio.admin.api;
 
 import africa.springCore.martbackend.common.data.ApiResponse;
 import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminInvitationRequest;
-import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminNotFoundException;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminUpdateFailedException;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminListingDto;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminResponseDto;
 import africa.springCore.martbackend.portfolio.admin.service.AdminService;
@@ -81,10 +81,9 @@ public class AdminApiResource {
     @PatchMapping("/{id}")
     public ResponseEntity<AdminResponseDto> updateAdmin(
             @PathVariable(name = "id") Long id,
-            @RequestBody AdminUpdateRequest adminUpdateRequest,
-            @RequestParam("file") MultipartFile file
+            @RequestBody AdminUpdateRequest adminUpdateRequest
     ) throws UserNotFoundException, AdminUpdateFailedException, CustomerCreationFailedException, AdminNotFoundException, MapperException {
-        return ResponseEntity.ok().body(adminService.updateAdmin(id, adminUpdateRequest, file));
+        return ResponseEntity.ok().body(adminService.updateAdmin(id, adminUpdateRequest));
     }
 
 

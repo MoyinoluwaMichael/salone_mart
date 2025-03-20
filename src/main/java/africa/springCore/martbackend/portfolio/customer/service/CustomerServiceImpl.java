@@ -1,7 +1,6 @@
 package africa.springCore.martbackend.portfolio.customer.service;
 
 import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
-import africa.springCore.martbackend.core.base.domain.model.MediaType;
 import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerCreationRequest;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerUpdateRequest;
@@ -13,13 +12,12 @@ import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
-import africa.springCore.martbackend.infrastructure.exception.UserUpdateFailedException;
+import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
 import africa.springCore.martbackend.portfolio.customer.domain.dtos.responses.CustomerListingDto;
 import africa.springCore.martbackend.portfolio.customer.domain.dtos.responses.CustomerResponseDto;
 import africa.springCore.martbackend.portfolio.customer.domain.model.Customer;
 import africa.springCore.martbackend.portfolio.customer.domain.repository.CustomerRepository;
 import africa.springCore.martbackend.portfolio.customer.exception.CustomerUpdateFailedException;
-import africa.springCore.martbackend.portfolio.product.exception.ProductCreationFailedException;
 import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
 import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +29,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static africa.springCore.martbackend.common.Message.*;
 import static africa.springCore.martbackend.common.utils.AppUtils.EMAIL_VALUE;
@@ -160,7 +156,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponseDto updateCustomer(Long id, CustomerUpdateRequest customerUpdateRequest, MultipartFile file) throws CustomerCreationFailedException, UserNotFoundException, MapperException, CustomerUpdateFailedException, UserUpdateFailedException {
+    public CustomerResponseDto updateCustomer(Long id, CustomerUpdateRequest customerUpdateRequest) throws CustomerCreationFailedException, UserNotFoundException, MapperException, CustomerUpdateFailedException, MediaUploadFailedException {
         boolean allFieldsAreEmpty = true;
         findById(id);
         Customer existingCustomer = customerRepository.findById(id).get();
@@ -183,17 +179,6 @@ public class CustomerServiceImpl implements CustomerService {
             allFieldsAreEmpty = false;
             existingCustomerBioData.setLastName(customerUpdateRequest.getLastName());
         }
-        if (!file.isEmpty()){
-            allFieldsAreEmpty = true;
-            CompletableFuture.supplyAsync(() -> {
-                try {
-                    return existingCustomer.uploadAndAddMedia(file, cloudinaryUploadService, "profilePicture", MediaType.PICTURE);
-                } catch (UserUpdateFailedException e) {
-                    throw new RuntimeException(e);
-                }
-            }).thenApplyAsync(customerRepository::save);
-        }
-
         if (allFieldsAreEmpty) throw new CustomerUpdateFailedException("No field specified for update");
         else {
             existingCustomer.setBioData(existingCustomerBioData);

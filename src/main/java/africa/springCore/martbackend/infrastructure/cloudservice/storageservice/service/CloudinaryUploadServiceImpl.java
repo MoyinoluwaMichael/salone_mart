@@ -3,6 +3,7 @@ package africa.springCore.martbackend.infrastructure.cloudservice.storageservice
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CloudinaryUploadServiceImpl implements CloudinaryUploadService {
     private final Cloudinary cloudinary;
 
@@ -22,8 +24,10 @@ public class CloudinaryUploadServiceImpl implements CloudinaryUploadService {
             if (folderName != null && !folderName.isEmpty()) {
                 options.put("folder", folderName);
             }
+            log.info("Uploading file to cloudinary...");
             return cloudinary.uploader().upload(file.getBytes(), options);
         } catch (IOException e) {
+            log.error("Error uploading file to cloudinary {}", e.getMessage());
             throw new RuntimeException("File upload failed", e);
         }
     }

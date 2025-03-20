@@ -2,8 +2,6 @@ package africa.springCore.martbackend.portfolio.product.service;
 
 import africa.springCore.martbackend.common.enums.ApprovalStatus;
 import africa.springCore.martbackend.common.utils.MartMapper;
-import africa.springCore.martbackend.core.base.domain.model.Media;
-import africa.springCore.martbackend.core.base.domain.model.MediaType;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
@@ -30,9 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static africa.springCore.martbackend.common.Message.PRODUCT_WITH_ID_NOT_FOUND;
@@ -85,16 +81,6 @@ public class ProductServiceImpl implements ProductService {
             product.setDiscountedPrice(getDiscountedPrice(productCreationRequest));
         }
         Product savedProduct = productRepository.save(product);
-
-
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                return savedProduct.uploadAndAddMedia(file, cloudinaryUploadService, productCreationRequest.getType());
-            } catch (ProductCreationFailedException e) {
-                throw new RuntimeException(e);
-            }
-        }).thenApplyAsync(productRepository::save);
-
         return getProductResponseDto(savedProduct);
     }
 

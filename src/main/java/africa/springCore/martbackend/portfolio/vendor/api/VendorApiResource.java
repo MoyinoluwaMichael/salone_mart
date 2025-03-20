@@ -35,12 +35,11 @@ public class VendorApiResource {
     @Operation(summary = "Create a New Vendor")
     @PostMapping("")
     public ResponseEntity<VendorResponseDto> createVendor(
-            @Valid @RequestBody VendorCreationRequest vendorCreationRequest,
-            @RequestPart("files") List<MultipartFile> files
+            @Valid @RequestBody VendorCreationRequest vendorCreationRequest
     ) throws MartException, VendorCreationException {
 
         VendorResponseDto postClientsResponse =
-                vendorService.createVendor(vendorCreationRequest, files);
+                vendorService.createVendor(vendorCreationRequest);
 
         return ResponseEntity.ok(postClientsResponse);
     }
@@ -88,12 +87,11 @@ public class VendorApiResource {
     @PatchMapping("/{id}")
     public ResponseEntity<VendorResponseDto> updateVendor(
             @Valid @PathVariable(name = "id") Long id,
-            @Valid @RequestBody VendorUpdateRequest VendorUpdateRequest,
-            List<MultipartFile> files
+            @Valid @RequestBody VendorUpdateRequest VendorUpdateRequest
     ) throws MartException, VendorCreationException, VendorUpdateException {
         {
             VendorResponseDto vendor =
-                    vendorService.updateVendor(id, VendorUpdateRequest, files);
+                    vendorService.updateVendor(id, VendorUpdateRequest);
 
             return ResponseEntity.ok(vendor);
         }

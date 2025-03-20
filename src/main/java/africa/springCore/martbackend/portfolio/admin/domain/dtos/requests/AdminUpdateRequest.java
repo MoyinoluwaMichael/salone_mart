@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests;
+package africa.springCore.martbackend.portfolio.admin.domain.dtos.requests;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -16,5 +16,4 @@ public class AdminUpdateRequest {
 
     @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone number is invalid")
     private String phoneNumber;
-    private String profilePicture;
 }

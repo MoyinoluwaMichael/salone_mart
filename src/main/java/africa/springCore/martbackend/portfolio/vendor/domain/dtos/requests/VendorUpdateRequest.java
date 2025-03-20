@@ -1,5 +1,6 @@
 package africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests;
 
+import africa.springCore.martbackend.portfolio.user.domain.dto.FileMetaData;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,4 @@ public class VendorUpdateRequest {
 
     @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone number is invalid")
     private String phoneNumber;
-
-    private List<FileMetaData> files;
 }

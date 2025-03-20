@@ -11,13 +11,10 @@ import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.Vendo
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorListingDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 public interface VendorService {
     VendorResponseDto findByEmail(String emailAddress) throws MapperException, UserNotFoundException;
-    VendorResponseDto createVendor(VendorCreationRequest VendorCreationRequest, List<MultipartFile> files) throws MartException, VendorCreationException;
+    VendorResponseDto createVendor(VendorCreationRequest VendorCreationRequest) throws MartException, VendorCreationException;
 
     VendorResponseDto findById(Long id) throws UserNotFoundException, MapperException;
 
@@ -25,7 +22,7 @@ public interface VendorService {
 
     VendorListingDto searchBy(String searchParam, String value, Pageable pageable);
 
-    VendorResponseDto updateVendor(Long id, VendorUpdateRequest VendorUpdateRequest, List<MultipartFile> files) throws VendorCreationException, UserNotFoundException, MapperException, VendorUpdateException;
+    VendorResponseDto updateVendor(Long id, VendorUpdateRequest VendorUpdateRequest) throws VendorCreationException, UserNotFoundException, MapperException, VendorUpdateException;
 
     VendorResponseDto approveVendor(Long id, String actionName) throws UserNotFoundException, MapperException, VendorApprovalFailedException;
 }

@@ -92,12 +92,11 @@ public class CustomerApiResource {
     @PatchMapping("/{id}")
     public ResponseEntity<CustomerResponseDto> updateCustomer(
             @Valid @PathVariable(name = "id") Long id,
-            @Valid @RequestBody CustomerUpdateRequest customerUpdateRequest,
-            @RequestParam("file") MultipartFile file
+            @Valid @RequestBody CustomerUpdateRequest customerUpdateRequest
     ) throws MartException, CustomerCreationFailedException, CustomerUpdateFailedException {
         {
             CustomerResponseDto customer =
-                    customerService.updateCustomer(id, customerUpdateRequest, file);
+                    customerService.updateCustomer(id, customerUpdateRequest);
 
             return ResponseEntity.ok(customer);
         }
