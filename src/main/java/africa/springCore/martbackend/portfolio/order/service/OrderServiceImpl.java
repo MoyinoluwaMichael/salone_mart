@@ -1,11 +1,10 @@
 package africa.springCore.martbackend.portfolio.order.service;
 
-import africa.springCore.martbackend.common.enums.OrderStatus;
-import africa.springCore.martbackend.common.utils.MartMapper;
+import africa.springCore.martbackend.core.domain.enums.OrderStatus;
+import africa.springCore.martbackend.core.utils.MartMapper;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderNotFoundException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderUpdateFailedException;
-import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
 import africa.springCore.martbackend.infrastructure.configuration.ApplicationProperty;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
@@ -33,13 +32,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static africa.springCore.martbackend.common.Message.ORDER_WITH_ID_NOT_FOUND;
-import static africa.springCore.martbackend.common.utils.AppUtils.CANCEL;
-import static africa.springCore.martbackend.common.utils.AppUtils.CHECKOUT;
-import static africa.springCore.martbackend.common.utils.AppUtils.COMPLETE;
-import static africa.springCore.martbackend.common.utils.AppUtils.DELIVER;
-import static africa.springCore.martbackend.common.utils.AppUtils.IN_TRANSIT;
-import static africa.springCore.martbackend.common.utils.AppUtils.NEW_ORDER;
+import static africa.springCore.martbackend.core.utils.Message.ORDER_WITH_ID_NOT_FOUND;
+import static africa.springCore.martbackend.core.utils.AppUtils.CANCEL;
+import static africa.springCore.martbackend.core.utils.AppUtils.CHECKOUT;
+import static africa.springCore.martbackend.core.utils.AppUtils.COMPLETE;
+import static africa.springCore.martbackend.core.utils.AppUtils.DELIVER;
+import static africa.springCore.martbackend.core.utils.AppUtils.IN_TRANSIT;
+import static africa.springCore.martbackend.core.utils.AppUtils.NEW_ORDER;
 
 @Service
 @RequiredArgsConstructor
@@ -50,14 +49,12 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final CustomerService customerService;
-    private final VendorService vendorService;
-    private final ApplicationProperty applicationProperty;
 
 
     @Override
-    public OrderResponseDto postAnOrder(Long customerId, OrderCreationRequest orderCreationRequest) throws MapperException, ProductNotFoundException, UserNotFoundException, ProductCategoryNotFoundException, OrderCreationFailedException {
+    public OrderResponseDto postAnOrder(Long customerId, OrderCreationRequest orderCreationRequest) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException {
         customerService.findById(customerId);
-        if (orderCreationRequest.getProductOrders().size() < 1) {
+        if (orderCreationRequest.getProductOrders().isEmpty()) {
             throw new OrderCreationFailedException("At least one order is required");
         }
         Order order = martMapper.readValue(orderCreationRequest, Order.class);
@@ -69,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
         return getOrderResponseDto(orderRepository.save(order));
     }
 
-    private OrderResponseDto getOrderResponseDto(Order order) throws MapperException, ProductCategoryNotFoundException, ProductNotFoundException {
+    private OrderResponseDto getOrderResponseDto(Order order) throws MapperException, ProductNotFoundException {
         OrderResponseDto orderResponseDto = martMapper.readValue(order, OrderResponseDto.class);
         for (int i = 0; i < order.getProductOrders().size(); i++) {
             ProductOrderResponseDto productOrderResponseDto = orderResponseDto.getProductOrders().get(i);
@@ -85,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public BigDecimal calculateTotalAmount(List<ProductOrderCreationRequest> productOrders, String orderType) throws MapperException, ProductNotFoundException, ProductCategoryNotFoundException {
+    public BigDecimal calculateTotalAmount(List<ProductOrderCreationRequest> productOrders, String orderType) throws MapperException, ProductNotFoundException {
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (ProductOrderCreationRequest productOrder : productOrders) {
             productService.getProductById(productOrder.getProductId());
@@ -101,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponseDto updateOrderStatus(Long orderId, String command) throws OrderNotFoundException, ProductCategoryNotFoundException, MapperException, ProductNotFoundException, OrderUpdateFailedException {
+    public OrderResponseDto updateOrderStatus(Long orderId, String command) throws OrderNotFoundException, MapperException, ProductNotFoundException, OrderUpdateFailedException {
         getOrderById(orderId);
         Order order = orderRepository.findById(orderId).get();
         command = command.toLowerCase(Locale.ROOT);
@@ -155,7 +152,7 @@ public class OrderServiceImpl implements OrderService {
         Page<OrderResponseDto> orderResponseDtos = pagedOrders.map((order -> {
             try {
                 return getOrderResponseDto(order);
-            } catch (MapperException | ProductNotFoundException | ProductCategoryNotFoundException e) {
+            } catch (MapperException | ProductNotFoundException e) {
                 e.printStackTrace();
             }
             return null;
@@ -168,7 +165,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponseDto getOrderById(Long id) throws OrderNotFoundException, MapperException, ProductCategoryNotFoundException, ProductNotFoundException {
+    public OrderResponseDto getOrderById(Long id) throws OrderNotFoundException, MapperException, ProductNotFoundException {
         return getOrderResponseDto(orderRepository.findById(id).orElseThrow(() -> new OrderNotFoundException(String.format(ORDER_WITH_ID_NOT_FOUND, id))));
     }
 

@@ -1,14 +1,11 @@
 package africa.springCore.martbackend.portfolio.user.domain.model;
 
-import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
-import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.portfolio.product.domain.model.Product;
+import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

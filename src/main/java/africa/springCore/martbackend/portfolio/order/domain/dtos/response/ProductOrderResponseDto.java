@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.order.domain.dtos.response;
 
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductResponseDto;
+import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +14,7 @@ public class ProductOrderResponseDto {
 
     private Long id;
 
-    private ProductResponseDto product;
+    private Product product;
 
     private Long quantity;
 

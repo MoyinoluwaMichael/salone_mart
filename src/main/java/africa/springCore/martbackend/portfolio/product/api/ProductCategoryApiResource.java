@@ -1,11 +1,10 @@
 package africa.springCore.martbackend.portfolio.product.api;
 
-import africa.springCore.martbackend.core.portfolio.product.domain.dtos.request.ProductCategoryCreationRequest;
-import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
+import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryDto;
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryListingDto;
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryResponseDto;
+import africa.springCore.martbackend.portfolio.product.domain.dtos.request.ProductClassificationCreationRequest;
+import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
+import africa.springCore.martbackend.portfolio.product.exception.ProductClassificationNotFoundException;
 import africa.springCore.martbackend.portfolio.product.service.ProductCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -22,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RequestMapping("api/v1/products/categories")
 @RestController
 @RequiredArgsConstructor
@@ -35,28 +32,28 @@ public class ProductCategoryApiResource {
 
     @PostMapping("")
     @Operation(summary = "Create a New Product Category")
-    public ResponseEntity<ProductCategoryResponseDto> postAProductCategory(
-            @Valid @RequestBody ProductCategoryCreationRequest productCategoryCreationRequest
+    public ResponseEntity<ProductCategory> postAProductCategory(
+            @Valid @RequestBody ProductClassificationCreationRequest productClassificationCreationRequest
     ) throws MapperException {
-        ProductCategoryResponseDto postProductCategoryResponse = productCategoryService.postAProductCategory(productCategoryCreationRequest);
+        ProductCategory postProductCategoryResponse = productCategoryService.postAProductCategory(productClassificationCreationRequest);
         return ResponseEntity.ok(postProductCategoryResponse);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Find a Product Category by ID")
-    public ResponseEntity<ProductCategoryResponseDto> getAProductCategoryId(
+    public ResponseEntity<ProductCategory> getAProductCategoryId(
             @PathVariable(name = "id") Long id
-    ) throws ProductCategoryNotFoundException, MapperException {
-        ProductCategoryResponseDto postProductCategoryResponse = productCategoryService.findById(id);
+    ) throws ProductClassificationNotFoundException, MapperException {
+        ProductCategory postProductCategoryResponse = productCategoryService.findById(id);
         return ResponseEntity.ok(postProductCategoryResponse);
     }
 
     @GetMapping("")
     @Operation(summary = "Find all Product Categories")
-    public ResponseEntity<List<ProductCategoryDto>> getAllProductCategories(
+    public ResponseEntity<BasePageableResponse<ProductCategory>> getAllProductCategories(
             @PageableDefault(size = 20, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        List<ProductCategoryDto> postProductCategoryResponse = productCategoryService.getAllProductCategories(pageable);
+        BasePageableResponse<ProductCategory> postProductCategoryResponse = productCategoryService.getAllProductCategories(pageable);
         return ResponseEntity.ok(postProductCategoryResponse);
     }
 }

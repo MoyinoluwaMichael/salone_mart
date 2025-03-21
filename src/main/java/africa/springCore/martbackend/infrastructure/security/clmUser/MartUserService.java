@@ -1,14 +1,14 @@
 package africa.springCore.martbackend.infrastructure.security.clmUser;
 
-import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
+import africa.springCore.martbackend.core.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.repository.BioDataRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
-import static africa.springCore.martbackend.common.Message.INVALID_EMAIL_OR_PASSWORD;
+import static africa.springCore.martbackend.core.utils.Message.INVALID_EMAIL_OR_PASSWORD;
 
 @AllArgsConstructor
 @Repository

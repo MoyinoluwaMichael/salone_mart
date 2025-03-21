@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.product.domain.model;
 
-import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
+import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,14 +35,4 @@ public class ProductCategory extends BaseEntity {
 
     @Column(name = "description")
     private String description;
-
-    @Column(name = "brand")
-    private String brand;
-
-    @Column(name = "type")
-    private String type;
-
-    public static ProductCategory instance(String name, String description, String brand, String type) {
-        return new ProductCategory(null, name, description, brand, type);
-    }
 }

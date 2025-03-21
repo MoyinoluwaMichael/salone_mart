@@ -1,9 +1,10 @@
 package africa.springCore.martbackend.portfolio.user.service;
 
-import africa.springCore.martbackend.common.utils.MartMapper;
-import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
-import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
+import africa.springCore.martbackend.core.domain.enums.Role;
+import africa.springCore.martbackend.core.utils.MartMapper;
+import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
+import africa.springCore.martbackend.core.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.repository.BioDataRepository;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
@@ -14,25 +15,32 @@ import africa.springCore.martbackend.portfolio.user.domain.model.DocumentType;
 import africa.springCore.martbackend.portfolio.user.domain.model.Media;
 import africa.springCore.martbackend.portfolio.user.domain.model.MediaCategory;
 import africa.springCore.martbackend.portfolio.user.domain.repository.DocumentTypeRepository;
+import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
+import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static africa.springCore.martbackend.common.utils.AppUtils.*;
+import static africa.springCore.martbackend.core.utils.AppUtils.DOCUMENT_FOLDER;
+import static africa.springCore.martbackend.core.utils.AppUtils.PRODUCT_FOLDER;
+import static africa.springCore.martbackend.core.utils.AppUtils.USER_PROFILE_FOLDER;
 
 @Service
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
     private final MartMapper martMapper;
     private final BioDataRepository bioDataRepository;
+    private final VendorRepository vendorRepository;
     private final DocumentTypeRepository documentTypeRepository;
     private final CloudinaryUploadService cloudinaryUploadService;
     private final ProductRepository productRepository;
 
     @Override
+    @Transactional
     public BioDataResponseDto uploadMedia(List<MultipartFile> files, String fileMetaData, Long userId, Long productId) throws MapperException, MediaUploadFailedException {
         TypeReference<List<FileMetaData>> typeReference = new TypeReference<>() {
         };
@@ -43,6 +51,10 @@ public class MediaServiceImpl implements MediaService {
         }
         BioData existingBioData = bioDataRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
+        Vendor vendor = null;
+        if (existingBioData.getRoles().contains(Role.VENDOR)) {
+            vendor = vendorRepository.findByBioData_EmailAddress(existingBioData.getEmailAddress()).get();
+        }
         if (!files.isEmpty()) {
             for (MultipartFile file : files) {
                 String fileId = file.getOriginalFilename();
@@ -51,9 +63,9 @@ public class MediaServiceImpl implements MediaService {
                         .findFirst()
                         .orElse(null);
                 if (metadata != null) {
-                    Media media = existingBioData.getDocumentTypeId(metadata.getDocumentTypeId());
-                    System.err.println("media: " + media);
-                    if (media != null) {
+                    MediaCategory requestMediaCategory = MediaCategory.instanceOf(metadata.getMediaCategory());
+                    Media media = existingBioData.getMediaByDocumentTypeId(metadata.getDocumentTypeId());
+                    if (media != null && media.getType().equals(requestMediaCategory)) {
                         try {
                             BioData savedBioData = existingBioData.removeMedia(media, cloudinaryUploadService);
                             bioDataRepository.save(savedBioData);
@@ -63,8 +75,11 @@ public class MediaServiceImpl implements MediaService {
                     }
                     DocumentType documentType = documentTypeRepository.findById(metadata.getDocumentTypeId())
                             .orElseThrow(() -> new MediaUploadFailedException("Document type not found"));
-                    uploadAndAddMedia(existingBioData, file, metadata, product, documentType);
+                    uploadAndAddMedia(existingBioData, file, product, documentType, requestMediaCategory, vendor);
                 }
+            }
+            if (product != null) {
+                productRepository.save(product);
             }
             bioDataRepository.save(existingBioData);
         }
@@ -72,16 +87,18 @@ public class MediaServiceImpl implements MediaService {
         return martMapper.readValue(existingBioData, BioDataResponseDto.class);
     }
 
-
-    private void uploadAndAddMedia(BioData bioData, MultipartFile file, FileMetaData metadata, Product product, DocumentType documentType) throws MediaUploadFailedException {
+    public void uploadAndAddMedia(BioData bioData, MultipartFile file, Product product, DocumentType documentType, MediaCategory requestMediaCategory, Vendor vendor) throws MediaUploadFailedException {
         String contentType = file.getContentType();
-        MediaCategory requestMediaCategory = MediaCategory.instanceOf(metadata.getMediaCategory());
-        if ((contentType != null && contentType.startsWith("image/")) || MediaCategory.USER.equals(requestMediaCategory)) {
-            bioData.uploadAndAddMedia(file, cloudinaryUploadService, MediaCategory.USER, USER_PROFILE_FOLDER, product, documentType);
+        if ((contentType != null && contentType.startsWith("image/")) && MediaCategory.USER.equals(requestMediaCategory)) {
+            bioData.uploadAndAddMedia(file, cloudinaryUploadService, MediaCategory.USER, USER_PROFILE_FOLDER, documentType);
         } else if (MediaCategory.DOCUMENT.equals(requestMediaCategory)) {
-            bioData.uploadAndAddMedia(file, cloudinaryUploadService, MediaCategory.DOCUMENT, DOCUMENT_FOLDER, product, documentType);
+            if (vendor != null) {
+                vendor.uploadAndAddMedia(file, cloudinaryUploadService, MediaCategory.DOCUMENT, DOCUMENT_FOLDER, documentType);
+            }else {
+                bioData.uploadAndAddMedia(file, cloudinaryUploadService, MediaCategory.PRODUCT, PRODUCT_FOLDER, documentType);
+            }
         } else if (MediaCategory.PRODUCT.equals(requestMediaCategory) && product != null) {
-            bioData.uploadAndAddMedia(file, cloudinaryUploadService, MediaCategory.PRODUCT, PRODUCT_FOLDER, product, documentType);
+            product.uploadAndAddMedia(file, cloudinaryUploadService, MediaCategory.PRODUCT, PRODUCT_FOLDER, documentType);
         }
     }
 }

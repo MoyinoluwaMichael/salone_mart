@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.infrastructure.notification.mailServices.service;
 
-import africa.springCore.martbackend.common.data.ApiResponse;
+import africa.springCore.martbackend.core.domain.dtos.response.ApiResponse;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.domain.dtos.EmailNotificationRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -11,8 +11,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import static africa.springCore.martbackend.common.Message.MAIL_HAS_BEEN_SENT_SUCCESSFULLY;
-import static africa.springCore.martbackend.common.Message.apiResponse;
+import static africa.springCore.martbackend.core.utils.Message.MAIL_HAS_BEEN_SENT_SUCCESSFULLY;
+import static africa.springCore.martbackend.core.utils.Message.apiResponse;
 
 @Service
 @RequiredArgsConstructor

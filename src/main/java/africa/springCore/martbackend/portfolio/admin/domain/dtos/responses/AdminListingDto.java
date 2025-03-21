@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.admin.domain.dtos.responses;
 
-import africa.springCore.martbackend.common.data.BasePageableResponse;
+import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import lombok.Getter;
 import lombok.Setter;
 

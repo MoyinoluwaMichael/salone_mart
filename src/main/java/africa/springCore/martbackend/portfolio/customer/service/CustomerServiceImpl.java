@@ -1,13 +1,13 @@
 package africa.springCore.martbackend.portfolio.customer.service;
 
-import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
-import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
+import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
+import africa.springCore.martbackend.core.domain.repository.BioDataRepository;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerCreationRequest;
 import africa.springCore.martbackend.core.portfolio.customer.domain.dtos.requests.CustomerUpdateRequest;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
-import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.common.enums.Role;
-import africa.springCore.martbackend.common.utils.MartMapper;
+import africa.springCore.martbackend.core.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.enums.Role;
+import africa.springCore.martbackend.core.utils.MartMapper;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
@@ -33,9 +33,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import static africa.springCore.martbackend.common.Message.*;
-import static africa.springCore.martbackend.common.utils.AppUtils.EMAIL_VALUE;
-import static africa.springCore.martbackend.common.utils.AppUtils.PHONE_NUMBER;
+import static africa.springCore.martbackend.core.utils.Message.*;
+import static africa.springCore.martbackend.core.utils.AppUtils.EMAIL_VALUE;
+import static africa.springCore.martbackend.core.utils.AppUtils.PHONE_NUMBER;
 
 @Service
 @RequiredArgsConstructor

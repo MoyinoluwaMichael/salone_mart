@@ -17,17 +17,11 @@ public class ProductCreationRequest {
     @NotBlank(message = "description is mandatory")
     private String description;
 
-    @NotBlank(message = "picture is mandatory")
-    private String picture;
+    @NotNull(message = "categoryId is mandatory")
+    private Long categoryId;
 
-    @NotNull(message = "category is mandatory")
-    private String category;
-
-    @NotNull(message = "brand is mandatory")
-    private String brand;
-
-    @NotNull(message = "type is mandatory")
-    private String type;
+    @NotNull(message = "brandId is mandatory")
+    private Long brandId;
 
     @NotNull(message = "price is mandatory")
     private BigDecimal price;

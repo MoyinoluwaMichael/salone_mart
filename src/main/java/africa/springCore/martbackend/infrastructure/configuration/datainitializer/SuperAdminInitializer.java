@@ -1,7 +1,7 @@
 package africa.springCore.martbackend.infrastructure.configuration.datainitializer;
 
-import africa.springCore.martbackend.common.enums.Role;
-import africa.springCore.martbackend.core.base.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.enums.Role;
+import africa.springCore.martbackend.core.domain.model.BioData;
 import africa.springCore.martbackend.portfolio.admin.domain.model.Admin;
 import africa.springCore.martbackend.portfolio.admin.domain.repository.AdminRepository;
 import jakarta.annotation.PostConstruct;
@@ -22,6 +22,7 @@ public class SuperAdminInitializer {
 
     @PostConstruct
     public void init() {
+        log.info("Initializing default Super Admins...");
         String email = "ogunsmoyin.m@gmail.com";
         Optional<Admin> existingAdmin = adminRepository.findByBioData_EmailAddress(email);
         if (existingAdmin.isEmpty()) {

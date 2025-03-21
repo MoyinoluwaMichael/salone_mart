@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-import static africa.springCore.martbackend.common.Message.AUTHENTICATION_FAILED_FOR_USER_WITH_EMAIL;
+import static africa.springCore.martbackend.core.utils.Message.AUTHENTICATION_FAILED_FOR_USER_WITH_EMAIL;
 
 
 @Component

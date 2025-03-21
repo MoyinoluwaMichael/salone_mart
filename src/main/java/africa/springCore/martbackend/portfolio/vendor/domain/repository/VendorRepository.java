@@ -10,4 +10,6 @@ public interface VendorRepository extends JpaRepository<Vendor, Long> {
     Optional<Vendor> findByBioData_EmailAddress(String emailAddress);
 
     Optional<Vendor> findByBioData_PhoneNumber(String phoneNumber);
+
+    boolean existsByBusinessName(String businessName);
 }

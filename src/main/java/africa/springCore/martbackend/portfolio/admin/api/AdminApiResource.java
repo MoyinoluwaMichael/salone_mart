@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.admin.api;
 
-import africa.springCore.martbackend.common.data.ApiResponse;
+import africa.springCore.martbackend.core.domain.dtos.response.ApiResponse;
 import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminInvitationRequest;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminNotFoundException;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminUpdateFailedException;
@@ -21,7 +21,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RequestMapping("api/v1/admin")
 @RestController
@@ -60,7 +59,7 @@ public class AdminApiResource {
 
 
     @Operation(summary = "Find by id")
-    @GetMapping("/findById/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<AdminResponseDto> findById(
             @PathVariable(name = "id") Long id
     ) throws MartException, AdminNotFoundException {

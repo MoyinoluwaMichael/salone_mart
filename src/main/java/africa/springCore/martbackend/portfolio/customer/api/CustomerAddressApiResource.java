@@ -1,9 +1,9 @@
 package africa.springCore.martbackend.portfolio.customer.api;
 
-import africa.springCore.martbackend.core.base.domain.dtos.request.AddressCreationRequest;
-import africa.springCore.martbackend.core.base.domain.dtos.response.AddressListingDto;
-import africa.springCore.martbackend.core.base.domain.dtos.response.AddressResponseDto;
-import africa.springCore.martbackend.core.base.service.AddressService;
+import africa.springCore.martbackend.core.domain.dtos.request.AddressCreationRequest;
+import africa.springCore.martbackend.core.domain.dtos.response.AddressListingDto;
+import africa.springCore.martbackend.core.domain.dtos.response.AddressResponseDto;
+import africa.springCore.martbackend.core.service.AddressService;
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.portfolio.customer.service.CustomerService;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static africa.springCore.martbackend.common.enums.Role.CUSTOMER;
+import static africa.springCore.martbackend.core.domain.enums.Role.CUSTOMER;
 
 @RequestMapping("api/v1/customers/{customerId}/address")
 @RestController

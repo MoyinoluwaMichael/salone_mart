@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.admin.domain.dtos.responses;
 
-import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
+import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
-import static africa.springCore.martbackend.common.Message.INVALID_EMAIL_OR_PASSWORD;
+import static africa.springCore.martbackend.core.utils.Message.INVALID_EMAIL_OR_PASSWORD;
 
 
 @Component

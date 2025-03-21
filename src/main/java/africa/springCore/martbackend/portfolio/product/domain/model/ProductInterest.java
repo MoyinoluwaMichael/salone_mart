@@ -1,11 +1,10 @@
 package africa.springCore.martbackend.portfolio.product.domain.model;
 
-import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
+import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "product_interest")

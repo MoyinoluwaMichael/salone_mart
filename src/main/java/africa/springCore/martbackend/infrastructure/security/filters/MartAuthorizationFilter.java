@@ -1,7 +1,7 @@
 package africa.springCore.martbackend.infrastructure.security.filters;
 
 import africa.springCore.martbackend.infrastructure.exception.AuthenticationException;
-import africa.springCore.martbackend.common.utils.JwtUtility;
+import africa.springCore.martbackend.core.utils.JwtUtility;
 import com.auth0.jwt.interfaces.Claim;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static africa.springCore.martbackend.common.utils.AppUtils.*;
-import static africa.springCore.martbackend.common.utils.SecurityUtils.getAuthWhiteList;
+import static africa.springCore.martbackend.core.utils.AppUtils.*;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.getAuthWhiteList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
