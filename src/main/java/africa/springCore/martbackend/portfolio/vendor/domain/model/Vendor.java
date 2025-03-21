@@ -1,12 +1,24 @@
 package africa.springCore.martbackend.portfolio.vendor.domain.model;
 
-import africa.springCore.martbackend.common.enums.ApprovalStatus;
-import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
-import africa.springCore.martbackend.core.base.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.enums.ApprovalStatus;
+import africa.springCore.martbackend.core.domain.model.BaseEntity;
+import africa.springCore.martbackend.core.domain.model.BioData;
+import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
+import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
+import africa.springCore.martbackend.portfolio.product.domain.model.Product;
+import africa.springCore.martbackend.portfolio.user.domain.model.DocumentType;
+import africa.springCore.martbackend.portfolio.user.domain.model.Media;
+import africa.springCore.martbackend.portfolio.user.domain.model.MediaCategory;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "vendor")
@@ -27,10 +39,35 @@ public class Vendor extends BaseEntity {
     private String businessName;
 
     @Column(name = "status")
-    private ApprovalStatus approvalStatus;
+    private ApprovalStatus status;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private BioData bioData;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Media> media = new ArrayList<>();
 
+    public Vendor uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, DocumentType documentType) throws MediaUploadFailedException {
+        Map<String, Object> uploadResponse = new HashMap<>();
+        try {
+            uploadResponse = cloudinaryUploadService.uploadFile(file, folderName);
+        } catch (Exception e) {
+            throw new MediaUploadFailedException("User image upload failed: "+ e.getMessage());
+        }
+        if (uploadResponse.containsKey("error")) {
+            throw new MediaUploadFailedException("User image upload failed");
+        }
+
+        String publicId = (String) uploadResponse.get("public_id");
+        String secureUrl = (String) uploadResponse.get("secure_url");
+        Media media = Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file);
+        this.addMedia(media);
+        return this;
+    }
+
+
+    public void addMedia(Media media) {
+        this.media.add(media);
+    }
 }

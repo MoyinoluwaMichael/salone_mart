@@ -1,26 +1,23 @@
 package africa.springCore.martbackend.portfolio.product.service;
 
-import africa.springCore.martbackend.core.portfolio.product.domain.dtos.request.ProductCategoryCreationRequest;
-import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
+import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryDto;
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryListingDto;
-import africa.springCore.martbackend.portfolio.product.domain.dtos.response.ProductCategoryResponseDto;
-import africa.springCore.martbackend.portfolio.product.domain.enums.ProductCategoryEnum;
+import africa.springCore.martbackend.portfolio.product.domain.dtos.request.ProductClassificationCreationRequest;
 import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
+import africa.springCore.martbackend.portfolio.product.exception.ProductClassificationNotFoundException;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ProductCategoryService {
-    ProductCategoryResponseDto findById(Long categoryId) throws ProductCategoryNotFoundException, MapperException;
+    ProductCategory findById(Long categoryId) throws MapperException, ProductClassificationNotFoundException;
 
-    ProductCategoryResponseDto postAProductCategory(ProductCategoryCreationRequest productCategoryCreationRequest) throws MapperException;
+    ProductCategory postAProductCategory(ProductClassificationCreationRequest productClassificationCreationRequest) throws MapperException;
 
-    ProductCategoryResponseDto findByName(String categoryName) throws ProductCategoryNotFoundException, MapperException;
+    ProductCategory findByName(String categoryName) throws MapperException, ProductClassificationNotFoundException;
 
-    ProductCategoryListingDto searchByName(String name, Pageable pageable) throws MapperException;
+    BasePageableResponse<ProductCategory> searchByName(String name, Pageable pageable) throws MapperException;
     List<ProductCategory> searchByName(String name) throws MapperException;
 
-    List<ProductCategoryDto> getAllProductCategories(Pageable pageable);
+    BasePageableResponse<ProductCategory> getAllProductCategories(Pageable pageable);
 }

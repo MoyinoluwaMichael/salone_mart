@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.infrastructure.security.clmUser;
 
-import africa.springCore.martbackend.core.base.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.model.BioData;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

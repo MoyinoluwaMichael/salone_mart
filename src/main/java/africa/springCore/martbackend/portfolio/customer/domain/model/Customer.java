@@ -1,7 +1,7 @@
 package africa.springCore.martbackend.portfolio.customer.domain.model;
 
-import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
-import africa.springCore.martbackend.core.base.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.model.BaseEntity;
+import africa.springCore.martbackend.core.domain.model.BioData;
 import jakarta.persistence.*;
 import lombok.*;
 

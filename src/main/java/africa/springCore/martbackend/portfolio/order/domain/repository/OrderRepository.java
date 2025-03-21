@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.order.domain.repository;
 
-import africa.springCore.martbackend.common.enums.OrderStatus;
+import africa.springCore.martbackend.core.domain.enums.OrderStatus;
 import africa.springCore.martbackend.portfolio.order.domain.model.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

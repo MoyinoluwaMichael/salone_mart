@@ -1,10 +1,9 @@
 package africa.springCore.martbackend.portfolio.order.api;
 
-import africa.springCore.martbackend.common.data.ApiResponse;
+import africa.springCore.martbackend.core.domain.dtos.response.ApiResponse;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderNotFoundException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderUpdateFailedException;
-import africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
@@ -26,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static africa.springCore.martbackend.common.Message.apiResponse;
+import static africa.springCore.martbackend.core.utils.Message.apiResponse;
 
 @RequestMapping("api/v1/")
 @RestController
@@ -41,7 +40,7 @@ public class OrderApiResource {
     public ResponseEntity<OrderResponseDto> postAnOrder(
             @PathVariable(name = "customerId") Long customerId,
             @Valid @RequestBody OrderCreationRequest orderCreationRequest
-    ) throws MapperException, ProductNotFoundException, UserNotFoundException, ProductCategoryNotFoundException, OrderCreationFailedException {
+    ) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException {
         OrderResponseDto orderResponseDto = orderService.postAnOrder(customerId, orderCreationRequest);
         return ResponseEntity.ok(orderResponseDto);
     }
@@ -50,7 +49,7 @@ public class OrderApiResource {
     @Operation(summary = "Calculate total amount for one or more orders")
     public ResponseEntity<ApiResponse> calculateTotalAmount(
             @RequestBody List<ProductOrderCreationRequest> productOrders
-    ) throws africa.springCore.martbackend.core.portfolio.product.exception.ProductCategoryNotFoundException, MapperException, africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException {
+    ) throws MapperException, africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException {
         BigDecimal totalAmount = orderService.calculateTotalAmount(productOrders, null);
         return ResponseEntity.ok(apiResponse(totalAmount));
     }
@@ -59,7 +58,7 @@ public class OrderApiResource {
     @Operation(summary = "Get order by ID")
     public ResponseEntity<OrderResponseDto> getOrderById(
             @PathVariable(name = "id") Long id
-    ) throws OrderNotFoundException, MapperException, ProductCategoryNotFoundException, ProductNotFoundException {
+    ) throws OrderNotFoundException, MapperException, ProductNotFoundException {
         OrderResponseDto orderResponseDto = orderService.getOrderById(id);
         return ResponseEntity.ok(orderResponseDto);
     }
@@ -80,7 +79,7 @@ public class OrderApiResource {
     public ResponseEntity<OrderResponseDto> updateOrderStatus(
             @PathVariable(name = "orderId") Long orderId,
             @RequestParam(name = "command", defaultValue = "checkout") String command
-    ) throws OrderNotFoundException, ProductCategoryNotFoundException, OrderUpdateFailedException, MapperException, ProductNotFoundException {
+    ) throws OrderNotFoundException, OrderUpdateFailedException, MapperException, ProductNotFoundException {
         OrderResponseDto orderResponseDto = orderService.updateOrderStatus(orderId, command);
         return ResponseEntity.ok(orderResponseDto);
     }

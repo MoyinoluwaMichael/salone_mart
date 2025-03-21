@@ -1,6 +1,5 @@
 package africa.springCore.martbackend.portfolio.user.domain.model;
 
-import africa.springCore.martbackend.core.base.domain.model.BioData;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -31,7 +30,7 @@ public class Media implements Serializable {
     private MediaCategory type;
 
     @JoinColumn(name = "document_type_id")
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private DocumentType documentType; // e.g., "PROFILE_PICTURE", "ID_DOCUMENT", "CERTIFICATE"
 
     @Column(name = "public_id")
@@ -59,14 +58,12 @@ public class Media implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updatedAt;
 
-
     public static Media userInstance(MediaCategory mediaCategory, DocumentType documentName, String publicId, String secureUrl, MultipartFile file) {
         if (file == null) {
             throw new IllegalArgumentException("File cannot be null");
         }
         return new Media(null, mediaCategory, documentName, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
     }
-
 
     @PrePersist
     protected void onCreate() {
@@ -78,6 +75,4 @@ public class Media implements Serializable {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }
-

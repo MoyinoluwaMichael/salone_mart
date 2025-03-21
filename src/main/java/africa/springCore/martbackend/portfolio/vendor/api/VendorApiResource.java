@@ -1,5 +1,6 @@
 package africa.springCore.martbackend.portfolio.vendor.api;
 
+import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorApprovalFailedException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorCreationException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorUpdateException;
@@ -8,7 +9,6 @@ import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
-import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorListingDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,9 +20,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RequestMapping("api/v1/vendors")
 @RestController
@@ -59,13 +56,13 @@ public class VendorApiResource {
 
     @Operation(summary = "Find by Email")
     @GetMapping("/search")
-    public ResponseEntity<VendorListingDto> findByEmail(
+    public ResponseEntity<BasePageableResponse<VendorResponseDto>> findByEmail(
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             @RequestParam(name = "searchParam", defaultValue = "email") String searchParam,
             @RequestParam(name = "value") String value
     ) throws MapperException {
 
-        VendorListingDto vendors =
+        BasePageableResponse<VendorResponseDto> vendors =
                 vendorService.searchBy(searchParam, value, pageable);
 
         return ResponseEntity.ok(vendors);
@@ -73,11 +70,11 @@ public class VendorApiResource {
 
     @Operation(summary = "Retrieve all Vendors")
     @GetMapping("")
-    public ResponseEntity<VendorListingDto> retrieveAll(
+    public ResponseEntity<BasePageableResponse<VendorResponseDto>> retrieveAll(
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) throws MapperException {
 
-        VendorListingDto vendors =
+        BasePageableResponse<VendorResponseDto> vendors =
                 vendorService.retrieveAll(pageable);
 
         return ResponseEntity.ok(vendors);

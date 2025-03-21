@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.order.domain.dtos.response;
 
-import africa.springCore.martbackend.common.enums.OrderStatus;
+import africa.springCore.martbackend.core.domain.enums.OrderStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

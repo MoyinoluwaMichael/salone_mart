@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.admin.service;
 
-import africa.springCore.martbackend.common.data.ApiResponse;
+import africa.springCore.martbackend.core.domain.dtos.response.ApiResponse;
 import africa.springCore.martbackend.core.portfolio.admin.domain.dtos.requests.AdminInvitationRequest;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminNotFoundException;
 import africa.springCore.martbackend.core.portfolio.admin.exception.AdminUpdateFailedException;

@@ -3,8 +3,8 @@ package africa.springCore.martbackend.infrastructure.security;
 import africa.springCore.martbackend.infrastructure.security.filters.MartAuthorizationFilter;
 import africa.springCore.martbackend.infrastructure.exception.handler.CustomAuthenticationFailureHandler;
 import africa.springCore.martbackend.infrastructure.security.filters.MartAuthenticationFilter;
-import africa.springCore.martbackend.core.base.service.BioDataService;
-import africa.springCore.martbackend.common.utils.JwtUtility;
+import africa.springCore.martbackend.core.service.BioDataService;
+import africa.springCore.martbackend.core.utils.JwtUtility;
 import africa.springCore.martbackend.portfolio.admin.service.AdminService;
 import africa.springCore.martbackend.portfolio.customer.service.CustomerService;
 import africa.springCore.martbackend.portfolio.dispatchRider.service.DispatchRiderService;
@@ -25,15 +25,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import static africa.springCore.martbackend.common.enums.Role.ORDINARY_ADMIN;
-import static africa.springCore.martbackend.common.enums.Role.SUPER_ADMIN;
-import static africa.springCore.martbackend.common.enums.Role.VENDOR;
-import static africa.springCore.martbackend.common.utils.SecurityUtils.LOGIN_ENDPOINT;
-import static africa.springCore.martbackend.common.utils.SecurityUtils.getAuthWhiteList;
-import static africa.springCore.martbackend.common.utils.SecurityUtils.getGetUrlWhiteList;
-import static africa.springCore.martbackend.common.utils.SecurityUtils.getPostUrlWhiteList;
-import static africa.springCore.martbackend.common.utils.SecurityUtils.getProductsAuthUrl;
-import static africa.springCore.martbackend.common.utils.SecurityUtils.getVendorApprovalUrl;
+import static africa.springCore.martbackend.core.domain.enums.Role.ORDINARY_ADMIN;
+import static africa.springCore.martbackend.core.domain.enums.Role.SUPER_ADMIN;
+import static africa.springCore.martbackend.core.domain.enums.Role.VENDOR;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.LOGIN_ENDPOINT;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.getAuthWhiteList;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.getGetUrlWhiteList;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.getPostUrlWhiteList;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.getProductsAuthUrl;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.getVendorApprovalUrl;
 
 @Configuration
 @AllArgsConstructor

@@ -1,13 +1,13 @@
 package africa.springCore.martbackend.infrastructure.security.filters;
 
-import africa.springCore.martbackend.common.enums.Role;
-import africa.springCore.martbackend.core.base.domain.dtos.request.LoginRequest;
-import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
+import africa.springCore.martbackend.core.domain.enums.Role;
+import africa.springCore.martbackend.core.domain.dtos.request.LoginRequest;
+import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
-import africa.springCore.martbackend.core.base.service.BioDataService;
-import africa.springCore.martbackend.common.utils.JwtUtility;
+import africa.springCore.martbackend.core.service.BioDataService;
+import africa.springCore.martbackend.core.utils.JwtUtility;
 import africa.springCore.martbackend.infrastructure.exception.handler.ExceptionResponse;
 import africa.springCore.martbackend.portfolio.admin.service.AdminService;
 import africa.springCore.martbackend.portfolio.customer.service.CustomerService;
@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static africa.springCore.martbackend.common.utils.AppUtils.ACCESS_TOKEN_VALUE;
-import static africa.springCore.martbackend.common.utils.AppUtils.EMPTY_SPACE_VALUE;
-import static africa.springCore.martbackend.common.utils.AppUtils.USER;
+import static africa.springCore.martbackend.core.utils.AppUtils.ACCESS_TOKEN_VALUE;
+import static africa.springCore.martbackend.core.utils.AppUtils.EMPTY_SPACE_VALUE;
+import static africa.springCore.martbackend.core.utils.AppUtils.USER;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 

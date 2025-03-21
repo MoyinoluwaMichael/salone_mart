@@ -1,7 +1,7 @@
 package africa.springCore.martbackend.portfolio.order.domain.model;
 
-import africa.springCore.martbackend.common.enums.OrderStatus;
-import africa.springCore.martbackend.core.base.domain.model.BaseEntity;
+import africa.springCore.martbackend.core.domain.enums.OrderStatus;
+import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

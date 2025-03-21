@@ -1,21 +1,21 @@
 package africa.springCore.martbackend.portfolio.vendor.service;
 
-import africa.springCore.martbackend.common.enums.ApprovalStatus;
-import africa.springCore.martbackend.core.base.domain.dtos.response.BioDataResponseDto;
-import africa.springCore.martbackend.core.base.domain.model.BioData;
-import africa.springCore.martbackend.core.base.domain.repository.BioDataRepository;
-import africa.springCore.martbackend.common.enums.Role;
+import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
+import africa.springCore.martbackend.core.domain.enums.ApprovalStatus;
+import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
+import africa.springCore.martbackend.core.domain.model.BioData;
+import africa.springCore.martbackend.core.domain.repository.BioDataRepository;
+import africa.springCore.martbackend.core.domain.enums.Role;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorApprovalFailedException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorCreationException;
 import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorUpdateException;
-import africa.springCore.martbackend.common.utils.MartMapper;
+import africa.springCore.martbackend.core.utils.MartMapper;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
-import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorListingDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
 import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
@@ -32,13 +32,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import static africa.springCore.martbackend.common.Message.USER_WITH_EMAIL_ALREADY_EXISTS;
-import static africa.springCore.martbackend.common.Message.USER_WITH_EMAIL_NOT_FOUND;
-import static africa.springCore.martbackend.common.Message.USER_WITH_ID_NOT_FOUND;
-import static africa.springCore.martbackend.common.Message.USER_WITH_PHONE_NUMBER_ALREADY_EXISTS;
-import static africa.springCore.martbackend.common.Message.VENDOR_WITH_EMAIL_ALREADY_EXISTS;
-import static africa.springCore.martbackend.common.Message.VENDOR_WITH_PHONE_NUMBER_ALREADY_EXISTS;
-import static africa.springCore.martbackend.common.utils.AppUtils.*;
+import static africa.springCore.martbackend.core.utils.AppUtils.*;
+import static africa.springCore.martbackend.core.utils.Message.USER_WITH_EMAIL_ALREADY_EXISTS;
+import static africa.springCore.martbackend.core.utils.Message.USER_WITH_EMAIL_NOT_FOUND;
+import static africa.springCore.martbackend.core.utils.Message.USER_WITH_ID_NOT_FOUND;
+import static africa.springCore.martbackend.core.utils.Message.USER_WITH_PHONE_NUMBER_ALREADY_EXISTS;
+import static africa.springCore.martbackend.core.utils.Message.VENDOR_WITH_EMAIL_ALREADY_EXISTS;
+import static africa.springCore.martbackend.core.utils.Message.VENDOR_WITH_PHONE_NUMBER_ALREADY_EXISTS;
 
 @Service
 @RequiredArgsConstructor
@@ -71,7 +71,7 @@ public class VendorServiceImpl implements VendorService {
         Vendor vendor = new Vendor();
         vendor.setBusinessName(vendorCreationRequest.getBusinessName());
         vendor.setBioData(vendorBioData);
-        vendor.setApprovalStatus(ApprovalStatus.PENDING_REVIEW);
+        vendor.setStatus(ApprovalStatus.PENDING_REVIEW);
         Vendor savedVendor = vendorRepository.save(vendor);
         String savedVendorAsString = martMapper.writeValueAsString(savedVendor);
         try {
@@ -140,7 +140,7 @@ public class VendorServiceImpl implements VendorService {
     }
 
     @Override
-    public VendorListingDto retrieveAll(Pageable pageable) {
+    public BasePageableResponse<VendorResponseDto> retrieveAll(Pageable pageable) {
         Page<VendorResponseDto> pagedVendors = vendorRepository.findAll(pageable).map((vendor) -> {
             try {
                 return martMapper.readValue(vendor, VendorResponseDto.class);
@@ -149,11 +149,11 @@ public class VendorServiceImpl implements VendorService {
             }
             return null;
         });
-        return getVendorListingDto(pagedVendors, pageable);
+        return getVendorListingDto(pagedVendors);
     }
 
     @Override
-    public VendorListingDto searchBy(String searchParam, String value, Pageable pageable) {
+    public BasePageableResponse<VendorResponseDto> searchBy(String searchParam, String value, Pageable pageable) {
         ExampleMatcher matcher = ExampleMatcher.matchingAll()
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
@@ -173,7 +173,7 @@ public class VendorServiceImpl implements VendorService {
             }
             return null;
         });
-        return getVendorListingDto(pagedVendors, pageable);
+        return getVendorListingDto(pagedVendors);
     }
 
     @Override
@@ -201,6 +201,10 @@ public class VendorServiceImpl implements VendorService {
             allFieldsAreEmpty = false;
             existingVendorBioData.setLastName(vendorUpdateRequest.getLastName());
         }
+        if (!StringUtils.isBlank(vendorUpdateRequest.getBusinessName())) {
+            allFieldsAreEmpty = false;
+            existingVendor.setBusinessName(vendorUpdateRequest.getBusinessName());
+        }
 
         if (allFieldsAreEmpty) throw new VendorUpdateException("No field specified for update");
         else {
@@ -212,20 +216,16 @@ public class VendorServiceImpl implements VendorService {
     @Override
     public VendorResponseDto approveVendor(Long id, String actionName) throws UserNotFoundException, MapperException, VendorApprovalFailedException {
         VendorResponseDto vendorResponseDto = findById(id);
-        if (vendorResponseDto.getApprovalStatus() == ApprovalStatus.APPROVED){
+        if (vendorResponseDto.getStatus() == ApprovalStatus.APPROVED){
             throw new VendorApprovalFailedException("Vendor is already in approved state.");
         }
         Vendor existingVendor = vendorRepository.findById(id).get();
-        if (actionName.equalsIgnoreCase(APPROVE)) existingVendor.setApprovalStatus(ApprovalStatus.APPROVED);
-        if (actionName.equalsIgnoreCase(REJECT)) existingVendor.setApprovalStatus(ApprovalStatus.REJECTED);
+        if (actionName.equalsIgnoreCase(APPROVE)) existingVendor.setStatus(ApprovalStatus.APPROVED);
+        if (actionName.equalsIgnoreCase(REJECT)) existingVendor.setStatus(ApprovalStatus.REJECTED);
         return getVendorResponseDto(vendorRepository.save(existingVendor));
     }
 
-    private VendorListingDto getVendorListingDto(Page<VendorResponseDto> pagedVendors, Pageable pageable) {
-        VendorListingDto vendorListingDto = new VendorListingDto();
-        vendorListingDto.setVendors(pagedVendors.getContent());
-        vendorListingDto.setPageNumber(pageable.getPageNumber());
-        vendorListingDto.setPageSize(pageable.getPageSize());
-        return vendorListingDto;
+    private BasePageableResponse<VendorResponseDto> getVendorListingDto(Page<VendorResponseDto> pagedVendors) {
+        return BasePageableResponse.instance(pagedVendors);
     }
 }
