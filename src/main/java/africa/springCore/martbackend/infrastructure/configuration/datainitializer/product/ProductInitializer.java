@@ -6,8 +6,8 @@ import africa.springCore.martbackend.portfolio.product.domain.dtos.request.Produ
 import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.product.service.ProductService;
-import africa.springCore.martbackend.portfolio.user.domain.dto.FileMetaData;
-import africa.springCore.martbackend.portfolio.user.service.MediaService;
+import africa.springCore.martbackend.portfolio.system.domain.dto.FileMetaData;
+import africa.springCore.martbackend.portfolio.system.service.MediaService;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
 import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;

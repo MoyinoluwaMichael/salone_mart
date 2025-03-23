@@ -6,4 +6,6 @@ import africa.springCore.martbackend.infrastructure.exception.UserNotFoundExcept
 
 public interface DispatchRiderService {
     DispatchRiderResponseDto findByEmail(String emailAddress) throws UserNotFoundException, MapperException;
+
+    Long retrieveTotalTransporters();
 }

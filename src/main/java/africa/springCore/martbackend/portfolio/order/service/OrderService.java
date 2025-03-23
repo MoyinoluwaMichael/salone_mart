@@ -27,4 +27,7 @@ public interface OrderService {
     BigDecimal calculateTotalAmount(List<ProductOrderCreationRequest> productOrders, String orderType) throws MapperException, ProductNotFoundException;
 
     OrderResponseDto updateOrderStatus(Long orderId, String command) throws OrderNotFoundException, MapperException, ProductNotFoundException, OrderUpdateFailedException;
+
+    Long retrieveTotalOrders();
+
 }

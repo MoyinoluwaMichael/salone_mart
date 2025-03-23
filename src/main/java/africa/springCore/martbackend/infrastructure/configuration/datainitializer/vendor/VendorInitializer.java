@@ -1,10 +1,10 @@
 package africa.springCore.martbackend.infrastructure.configuration.datainitializer.vendor;
 
 import africa.springCore.martbackend.core.utils.MartMapper;
-import africa.springCore.martbackend.portfolio.user.domain.dto.FileMetaData;
+import africa.springCore.martbackend.portfolio.system.domain.dto.FileMetaData;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
-import africa.springCore.martbackend.portfolio.user.service.MediaService;
+import africa.springCore.martbackend.portfolio.system.service.MediaService;
 import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
 import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
 import jakarta.annotation.PostConstruct;
@@ -35,7 +35,7 @@ public class VendorInitializer {
     public void init() {
         log.info("Initializing default Vendors...");
         try {
-            if (vendorRepository.existsByBusinessName("Vendor Business Name")) {
+            if (vendorRepository.findByBioData_EmailAddress("moyinoluwamichaelz@gmail.com").isPresent()) {
                 return;
             }
 

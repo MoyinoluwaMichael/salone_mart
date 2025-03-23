@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.portfolio.user.domain.model;
+package africa.springCore.martbackend.portfolio.system.domain.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

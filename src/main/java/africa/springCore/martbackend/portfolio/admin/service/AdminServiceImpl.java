@@ -18,10 +18,19 @@ import africa.springCore.martbackend.infrastructure.notification.mailServices.do
 import africa.springCore.martbackend.infrastructure.notification.mailServices.domain.dtos.EmailNotificationRequest;
 import africa.springCore.martbackend.infrastructure.notification.mailServices.service.MailService;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
+import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminDashboardResponse;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminListingDto;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminResponseDto;
 import africa.springCore.martbackend.portfolio.admin.domain.model.Admin;
 import africa.springCore.martbackend.portfolio.admin.domain.repository.AdminRepository;
+import africa.springCore.martbackend.portfolio.customer.service.CustomerService;
+import africa.springCore.martbackend.portfolio.dispatchRider.service.DispatchRiderService;
+import africa.springCore.martbackend.portfolio.order.service.OrderService;
+import africa.springCore.martbackend.portfolio.product.domain.dtos.response.CategoryProductCountDto;
+import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
+import africa.springCore.martbackend.portfolio.product.domain.repository.ProductCategoryRepository;
+import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
+import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
 import com.auth0.jwt.interfaces.Claim;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static africa.springCore.martbackend.core.utils.AppUtils.*;
 import static africa.springCore.martbackend.core.utils.Message.*;
@@ -51,8 +61,14 @@ public class AdminServiceImpl implements AdminService {
     private final ApplicationProperty applicationProperty;
     private final MailService mailService;
     private final BioDataService bioDataService;
+    private final DispatchRiderService dispatchRiderService;
     private final BioDataRepository bioDataRepository;
+    private final OrderService orderService;
     private final PasswordEncoder passwordEncoder;
+    private final CustomerService customerService;
+    private final ProductRepository productRepository;
+    private final VendorService vendorService;
+    private final ProductCategoryRepository productCategoryRepository;
 
 
     @Override
@@ -111,6 +127,29 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public AdminDashboardResponse retrieveAdminDashboard(Pageable pageable) {
+        List<Object[]> results = productRepository.findTopByProductCount(pageable.getPageSize(), pageable.getOffset());
+        return AdminDashboardResponse.builder()
+                .totalOrders(orderService.retrieveTotalOrders())
+                .totalCustomers(customerService.retrieveTotalCustomers())
+                .totalProducts(productRepository.count())
+                .totalTransporters(dispatchRiderService.retrieveTotalTransporters())
+                .totalVendors(vendorService.retrieveTotalVendors())
+                .categoryProductCount(
+                        results.stream()
+                                .map(result -> {
+                                    Long categoryId = (Long) result[0];
+                                    Long productCount = (Long) result[1];
+                                    ProductCategory category = productCategoryRepository.findById(categoryId)
+                                            .orElseThrow(() -> new RuntimeException("Category not found"));
+                                    return new CategoryProductCountDto(category, productCount);
+                                })
+                                .toList()
+                )
+                .build();
+    }
+
+    @Override
     public ApiResponse validateToken(String token) {
         jwtUtility.validateToken(token);
         return apiResponse(TOKEN_HAS_BEEN_VERIFIED_SUCCESSFULLY);
@@ -137,22 +176,22 @@ public class AdminServiceImpl implements AdminService {
         boolean allFieldsAreEmpty = true;
         findById(id);
         Admin existingAdmin = adminRepository.findById(id).get();
-        BioData existingAdminBioData = adminRepository.findById(id).get().getBioData();
-        if (adminUpdateRequest.getEmailAddress() != null && !StringUtils.isEmpty(adminUpdateRequest.getEmailAddress())) {
+        BioData existingAdminBioData = existingAdmin.getBioData();
+        if (!StringUtils.isBlank(adminUpdateRequest.getEmailAddress()) && !adminUpdateRequest.getEmailAddress().equalsIgnoreCase(existingAdminBioData.getEmailAddress())) {
             allFieldsAreEmpty = false;
             validateEmailDuplicity(adminUpdateRequest.getEmailAddress());
             existingAdminBioData.setEmailAddress(adminUpdateRequest.getEmailAddress());
         }
-        if (adminUpdateRequest.getPhoneNumber() != null && !StringUtils.isEmpty(adminUpdateRequest.getPhoneNumber())) {
+        if (!StringUtils.isBlank(adminUpdateRequest.getPhoneNumber()) && !adminUpdateRequest.getPhoneNumber().equalsIgnoreCase(existingAdminBioData.getPhoneNumber())) {
             allFieldsAreEmpty = false;
             validatePhoneNumberDuplicity(adminUpdateRequest.getPhoneNumber());
             existingAdminBioData.setPhoneNumber(adminUpdateRequest.getPhoneNumber());
         }
-        if (adminUpdateRequest.getFirstName() != null && !StringUtils.isEmpty(adminUpdateRequest.getFirstName())) {
+        if (adminUpdateRequest.getFirstName() != null && !StringUtils.isBlank(adminUpdateRequest.getFirstName())) {
             allFieldsAreEmpty = false;
             existingAdminBioData.setFirstName(adminUpdateRequest.getFirstName());
         }
-        if (adminUpdateRequest.getLastName() != null && !StringUtils.isEmpty(adminUpdateRequest.getLastName())) {
+        if (adminUpdateRequest.getLastName() != null && !StringUtils.isBlank(adminUpdateRequest.getLastName())) {
             allFieldsAreEmpty = false;
             existingAdminBioData.setLastName(adminUpdateRequest.getLastName());
         }

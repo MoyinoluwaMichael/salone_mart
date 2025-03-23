@@ -1,7 +1,7 @@
 package africa.springCore.martbackend.core.domain.dtos.response;
 
 import africa.springCore.martbackend.core.domain.enums.Role;
-import africa.springCore.martbackend.portfolio.user.domain.model.Media;
+import africa.springCore.martbackend.portfolio.system.domain.model.Media;
 import lombok.*;
 
 import java.util.List;

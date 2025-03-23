@@ -33,8 +33,9 @@ public class CloudinaryUploadServiceImpl implements CloudinaryUploadService {
     }
 
     @Override
-    public Map deleteFile(String publicId) throws Exception {
+    public Map deleteFile(String publicId) {
         try {
+            log.info("Deleting file from cloudinary... {}", publicId);
             return cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
         } catch (IOException e) {
             throw new RuntimeException("File deletion failed", e);

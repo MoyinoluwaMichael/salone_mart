@@ -25,4 +25,6 @@ public interface VendorService {
     VendorResponseDto updateVendor(Long id, VendorUpdateRequest VendorUpdateRequest) throws VendorCreationException, UserNotFoundException, MapperException, VendorUpdateException;
 
     VendorResponseDto approveVendor(Long id, String actionName) throws UserNotFoundException, MapperException, VendorApprovalFailedException;
+
+    Long retrieveTotalVendors();
 }

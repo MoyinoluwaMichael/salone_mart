@@ -1,9 +1,9 @@
-package africa.springCore.martbackend.portfolio.user.api;
+package africa.springCore.martbackend.portfolio.system.api;
 
 import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
-import africa.springCore.martbackend.portfolio.user.service.MediaService;
+import africa.springCore.martbackend.portfolio.system.service.MediaService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

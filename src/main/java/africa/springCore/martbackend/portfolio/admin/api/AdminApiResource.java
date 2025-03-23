@@ -9,6 +9,7 @@ import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
+import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminDashboardResponse;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminListingDto;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminResponseDto;
 import africa.springCore.martbackend.portfolio.admin.service.AdminService;
@@ -96,5 +97,17 @@ public class AdminApiResource {
             @Valid @RequestBody AdminInvitationRequest request
     ) throws MartException {
         return ResponseEntity.ok().body(adminService.acceptInvitation(encryptedLink, request));
+    }
+
+
+    @Operation(
+            summary = "Retrieve Admin Dashboard",
+            description = "API for retrieving the admin dashboard."
+    )
+    @GetMapping("dashboard")
+    public ResponseEntity<AdminDashboardResponse> retrieveAdminDashboard(
+            @PageableDefault(size = 4, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) throws MartException {
+        return ResponseEntity.ok().body(adminService.retrieveAdminDashboard(pageable));
     }
 }

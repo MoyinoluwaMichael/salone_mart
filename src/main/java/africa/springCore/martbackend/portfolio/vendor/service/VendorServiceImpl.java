@@ -225,6 +225,11 @@ public class VendorServiceImpl implements VendorService {
         return getVendorResponseDto(vendorRepository.save(existingVendor));
     }
 
+    @Override
+    public Long retrieveTotalVendors() {
+        return vendorRepository.count();
+    }
+
     private BasePageableResponse<VendorResponseDto> getVendorListingDto(Page<VendorResponseDto> pagedVendors) {
         return BasePageableResponse.instance(pagedVendors);
     }

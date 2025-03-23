@@ -186,6 +186,11 @@ public class CustomerServiceImpl implements CustomerService {
         }
     }
 
+    @Override
+    public Long retrieveTotalCustomers() {
+        return customerRepository.count();
+    }
+
     private CustomerListingDto getCustomerListingDto(Page<Customer> pagedCustomers) {
         Page<CustomerResponseDto> customerResponseDtoPage = pagedCustomers.map((customer) -> {
             try {
