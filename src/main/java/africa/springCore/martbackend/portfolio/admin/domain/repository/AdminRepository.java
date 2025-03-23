@@ -9,4 +9,5 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
 
     Optional<Admin> findByBioData_EmailAddress(String emailAddress);
     Optional<Admin> findByBioData_PhoneNumber(String emailAddress);
+
 }

@@ -1,6 +1,6 @@
-package africa.springCore.martbackend.portfolio.user.domain.repository;
+package africa.springCore.martbackend.portfolio.system.domain.repository;
 
-import africa.springCore.martbackend.portfolio.user.domain.model.DocumentType;
+import africa.springCore.martbackend.portfolio.system.domain.model.DocumentType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

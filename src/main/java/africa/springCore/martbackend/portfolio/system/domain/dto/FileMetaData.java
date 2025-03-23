@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.portfolio.user.domain.dto;
+package africa.springCore.martbackend.portfolio.system.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;

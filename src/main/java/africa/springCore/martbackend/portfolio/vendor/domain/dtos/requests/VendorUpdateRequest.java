@@ -1,11 +1,8 @@
 package africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests;
 
-import africa.springCore.martbackend.portfolio.user.domain.dto.FileMetaData;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Setter
 @Getter

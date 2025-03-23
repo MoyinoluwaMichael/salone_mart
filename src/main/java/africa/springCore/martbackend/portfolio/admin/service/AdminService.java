@@ -7,6 +7,7 @@ import africa.springCore.martbackend.core.portfolio.admin.exception.AdminUpdateF
 import africa.springCore.martbackend.core.portfolio.customer.exception.CustomerCreationFailedException;
 import africa.springCore.martbackend.infrastructure.exception.*;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.requests.AdminUpdateRequest;
+import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminDashboardResponse;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminListingDto;
 import africa.springCore.martbackend.portfolio.admin.domain.dtos.responses.AdminResponseDto;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ public interface AdminService {
     AdminResponseDto findByEmail(String emailAddress) throws MapperException, UserNotFoundException;
 
     ApiResponse acceptInvitation(String encryptedLink, AdminInvitationRequest request) throws MartException;
+    AdminDashboardResponse retrieveAdminDashboard(Pageable pageable);
 
     ApiResponse validateToken(String token);
 

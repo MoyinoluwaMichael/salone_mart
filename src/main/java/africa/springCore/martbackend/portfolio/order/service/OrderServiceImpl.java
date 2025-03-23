@@ -129,6 +129,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Long retrieveTotalOrders() {
+        return orderRepository.count();
+    }
+
+    @Override
     public OrderListingDto getAllOrders(Pageable pageable, String orderStatus) {
         if (orderStatus.equalsIgnoreCase("all")) {
             return getOrderListingDto(orderRepository.findAll(pageable));

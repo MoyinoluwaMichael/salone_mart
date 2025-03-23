@@ -1,7 +1,7 @@
 package africa.springCore.martbackend.infrastructure.configuration.datainitializer;
 
-import africa.springCore.martbackend.portfolio.user.domain.model.DocumentType;
-import africa.springCore.martbackend.portfolio.user.domain.repository.DocumentTypeRepository;
+import africa.springCore.martbackend.portfolio.system.domain.model.DocumentType;
+import africa.springCore.martbackend.portfolio.system.domain.repository.DocumentTypeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;

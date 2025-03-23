@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.portfolio.user.service;
+package africa.springCore.martbackend.portfolio.system.service;
 
 import africa.springCore.martbackend.core.domain.enums.Role;
 import africa.springCore.martbackend.core.utils.MartMapper;
@@ -10,11 +10,11 @@ import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
 import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
-import africa.springCore.martbackend.portfolio.user.domain.dto.FileMetaData;
-import africa.springCore.martbackend.portfolio.user.domain.model.DocumentType;
-import africa.springCore.martbackend.portfolio.user.domain.model.Media;
-import africa.springCore.martbackend.portfolio.user.domain.model.MediaCategory;
-import africa.springCore.martbackend.portfolio.user.domain.repository.DocumentTypeRepository;
+import africa.springCore.martbackend.portfolio.system.domain.dto.FileMetaData;
+import africa.springCore.martbackend.portfolio.system.domain.model.DocumentType;
+import africa.springCore.martbackend.portfolio.system.domain.model.Media;
+import africa.springCore.martbackend.portfolio.system.domain.model.MediaCategory;
+import africa.springCore.martbackend.portfolio.system.domain.repository.DocumentTypeRepository;
 import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
 import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
 import com.fasterxml.jackson.core.type.TypeReference;

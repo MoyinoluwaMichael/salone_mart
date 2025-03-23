@@ -20,4 +20,6 @@ public interface ProductService {
     BasePageableResponse<Product> getVendorProducts(Long vendorId, Pageable pageable);
 
     BasePageableResponse<Product> searchProducts(String searchParam, String value, Pageable pageable) throws MapperException;
+
+    Long retrieveTotalProducts();
 }

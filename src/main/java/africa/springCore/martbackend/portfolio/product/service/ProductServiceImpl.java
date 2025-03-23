@@ -123,4 +123,9 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> pagedProducts = productRepository.findAll(example, pageable);
         return BasePageableResponse.instance(pagedProducts);
     }
+
+    @Override
+    public Long retrieveTotalProducts() {
+        return productRepository.count();
+    }
 }

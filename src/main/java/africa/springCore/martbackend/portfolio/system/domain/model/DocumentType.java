@@ -1,4 +1,4 @@
-package africa.springCore.martbackend.portfolio.user.domain.model;
+package africa.springCore.martbackend.portfolio.system.domain.model;
 
 import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import jakarta.persistence.*;

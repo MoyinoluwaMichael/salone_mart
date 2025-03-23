@@ -23,4 +23,6 @@ public interface CustomerService {
     CustomerListingDto searchBy(String searchParam, String value, Pageable pageable);
 
     CustomerResponseDto updateCustomer(Long id, CustomerUpdateRequest customerUpdateRequest) throws CustomerCreationFailedException, UserNotFoundException, MapperException, CustomerUpdateFailedException, MediaUploadFailedException;
+
+    Long retrieveTotalCustomers();
 }

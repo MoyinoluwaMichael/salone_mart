@@ -2,7 +2,7 @@ package africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses;
 
 import africa.springCore.martbackend.core.domain.enums.ApprovalStatus;
 import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
-import africa.springCore.martbackend.portfolio.user.domain.model.Media;
+import africa.springCore.martbackend.portfolio.system.domain.model.Media;
 import lombok.Getter;
 import lombok.Setter;
 

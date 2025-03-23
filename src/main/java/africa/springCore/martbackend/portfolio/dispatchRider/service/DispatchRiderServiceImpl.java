@@ -29,4 +29,9 @@ public class DispatchRiderServiceImpl implements DispatchRiderService {
         dispatchRiderResponseDto.setBioData(bioDataResponse);
         return dispatchRiderResponseDto;
     }
+
+    @Override
+    public Long retrieveTotalTransporters() {
+        return dispatchRiderRepository.count();
+    }
 }
