@@ -14,6 +14,9 @@ import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
+import africa.springCore.martbackend.portfolio.product.domain.repository.ProductCategoryRepository;
+import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
@@ -48,6 +51,8 @@ public class VendorServiceImpl implements VendorService {
     private final VendorRepository vendorRepository;
     private final BioDataRepository bioDataRepository;
     private final CloudinaryUploadService cloudinaryUploadService;
+    private final ProductRepository productRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
     @Override
     public VendorResponseDto findByEmail(String emailAddress) throws MapperException, UserNotFoundException {
@@ -183,6 +188,15 @@ public class VendorServiceImpl implements VendorService {
         Vendor existingVendor = vendorRepository.findById(id).orElseThrow(() -> new UserNotFoundException(String.format(USER_WITH_ID_NOT_FOUND, id)));
         BioData existingVendorBioData = existingVendor.getBioData();
 
+        ProductCategory productCategory = null;
+        if (vendorUpdateRequest.getCategoryId() != null && vendorUpdateRequest.getCategoryId() > 0) {
+            allFieldsAreEmpty = false;
+            Optional<ProductCategory> foundProductCategory = productCategoryRepository.findById(vendorUpdateRequest.getCategoryId());
+            if (foundProductCategory.isEmpty()) {
+                throw new VendorUpdateException("Category not found");
+            }
+            productCategory = foundProductCategory.get();
+        }
         if (vendorUpdateRequest.getEmailAddress() != null && !StringUtils.isEmpty(vendorUpdateRequest.getEmailAddress())) {
             allFieldsAreEmpty = false;
             validateEmailDuplicity(vendorUpdateRequest.getEmailAddress());
@@ -208,20 +222,39 @@ public class VendorServiceImpl implements VendorService {
 
         if (allFieldsAreEmpty) throw new VendorUpdateException("No field specified for update");
         else {
+            if (productCategory != null) {
+                existingVendor.setCategory(productCategory);
+            }
             existingVendor.setBioData(existingVendorBioData);
             return getVendorResponseDto(vendorRepository.save(existingVendor));
         }
     }
 
     @Override
-    public VendorResponseDto approveVendor(Long id, String actionName) throws UserNotFoundException, MapperException, VendorApprovalFailedException {
-        VendorResponseDto vendorResponseDto = findById(id);
-        if (vendorResponseDto.getStatus() == ApprovalStatus.APPROVED){
-            throw new VendorApprovalFailedException("Vendor is already in approved state.");
+    public VendorResponseDto approveVendor(Long id, String command) throws UserNotFoundException, MapperException, VendorApprovalFailedException {
+        Vendor existingVendor = vendorRepository.findById(id).orElseThrow(
+                () -> new UserNotFoundException(String.format(USER_WITH_ID_NOT_FOUND, id))
+        );
+        if ("approve".equalsIgnoreCase(command)){
+            if (existingVendor.getStatus() == ApprovalStatus.APPROVED){
+                throw new VendorApprovalFailedException("Vendor is already in approved state.");
+            }
+            existingVendor.setStatus(ApprovalStatus.APPROVED);
         }
-        Vendor existingVendor = vendorRepository.findById(id).get();
-        if (actionName.equalsIgnoreCase(APPROVE)) existingVendor.setStatus(ApprovalStatus.APPROVED);
-        if (actionName.equalsIgnoreCase(REJECT)) existingVendor.setStatus(ApprovalStatus.REJECTED);
+        else if ("decline".equalsIgnoreCase(command)){
+            if (existingVendor.getStatus() == ApprovalStatus.REJECTED){
+                throw new VendorApprovalFailedException("Vendor is already in rejected state.");
+            }
+            existingVendor.setStatus(ApprovalStatus.REJECTED);
+        }
+        else if ("deactivate".equalsIgnoreCase(command)){
+            if (existingVendor.getStatus() == ApprovalStatus.DEACTIVATED){
+                throw new VendorApprovalFailedException("Vendor is already in deactivated state.");
+            }
+            existingVendor.setStatus(ApprovalStatus.DEACTIVATED);
+        }else {
+            throw new VendorApprovalFailedException("Invalid command");
+        }
         return getVendorResponseDto(vendorRepository.save(existingVendor));
     }
 
