@@ -95,14 +95,14 @@ public class VendorApiResource {
     }
 
     @Operation(summary = "Approve or reject a Vendor")
-    @PostMapping("/{id}/approval")
+    @PostMapping("/{id}")
     public ResponseEntity<VendorResponseDto> approveVendor(
             @Valid @PathVariable(name = "id") Long id,
-            @RequestParam(name = "actionName", defaultValue = "reject") String actionName
+            @RequestParam(name = "command") String command
     ) throws UserNotFoundException, MapperException, VendorApprovalFailedException {
         {
             VendorResponseDto vendor =
-                    vendorService.approveVendor(id, actionName);
+                    vendorService.approveVendor(id, command);
 
             return ResponseEntity.ok(vendor);
         }

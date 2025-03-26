@@ -40,7 +40,7 @@ public class SecurityUtils {
 
     public static String[] getVendorApprovalUrl() {
         return new String[]{
-                "/api/v1/vendors/*/approval"
+                "/api/v1/vendors/*"
         };
     }
 

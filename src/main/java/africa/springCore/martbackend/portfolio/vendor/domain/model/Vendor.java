@@ -5,6 +5,7 @@ import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import africa.springCore.martbackend.core.domain.model.BioData;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
+import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
 import africa.springCore.martbackend.portfolio.system.domain.model.DocumentType;
 import africa.springCore.martbackend.portfolio.system.domain.model.Media;
 import africa.springCore.martbackend.portfolio.system.domain.model.MediaCategory;
@@ -38,10 +39,15 @@ public class Vendor extends BaseEntity {
     private String businessName;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private ApprovalStatus status;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private BioData bioData;
+
+    @JoinColumn(name = "category_id")
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private ProductCategory category;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
