@@ -7,6 +7,8 @@ import africa.springCore.martbackend.core.portfolio.vendor.exception.VendorUpdat
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
+import africa.springCore.martbackend.portfolio.product.domain.model.Product;
+import africa.springCore.martbackend.portfolio.product.service.ProductService;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 public class VendorApiResource {
 
     private final VendorService vendorService;
+    private final ProductService productService;
 
     @Operation(summary = "Create a New Vendor")
     @PostMapping("")
@@ -106,5 +109,16 @@ public class VendorApiResource {
 
             return ResponseEntity.ok(vendor);
         }
+    }
+
+
+    @GetMapping("{vendorId}/products")
+    @Operation(summary = "Get vendors products")
+    public ResponseEntity<BasePageableResponse<Product>> getVendorProducts(
+            @PathVariable(name = "vendorId") Long vendorId,
+            @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    )  {
+        BasePageableResponse<Product> postProductResponse = productService.getVendorProducts(vendorId, pageable);
+        return ResponseEntity.ok(postProductResponse);
     }
 }

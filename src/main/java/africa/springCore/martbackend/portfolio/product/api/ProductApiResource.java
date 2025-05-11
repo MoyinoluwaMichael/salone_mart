@@ -46,16 +46,6 @@ public class ProductApiResource {
         return ResponseEntity.ok(postProductResponse);
     }
 
-    @GetMapping("vendors/{vendorId}/products")
-    @Operation(summary = "Get vendors products")
-    public ResponseEntity<BasePageableResponse<Product>> getVendorProducts(
-            @PathVariable(name = "vendorId") Long vendorId,
-            @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
-    )  {
-        BasePageableResponse<Product> postProductResponse = productService.getVendorProducts(vendorId, pageable);
-        return ResponseEntity.ok(postProductResponse);
-    }
-
     @GetMapping("products")
     @Operation(summary = "Get all products")
     public ResponseEntity<BasePageableResponse<Product>> getAllProducts(
