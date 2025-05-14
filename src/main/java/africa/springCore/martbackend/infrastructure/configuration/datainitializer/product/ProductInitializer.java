@@ -32,7 +32,7 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-@DependsOn({"vendorInitializer", "productCategoryInitializer", "productBrandInitializer"})
+@DependsOn({"vendorInitializer", "codeValueInitializer"})
 public class ProductInitializer {
 
     private final ProductService productService;
@@ -87,7 +87,8 @@ public class ProductInitializer {
                 );
                 brandId++;
 
-                Product response = productService.postAProduct(vendorId, request);
+                request.setVendorId(vendorId);
+                Product response = productService.postAProduct(request);
 
                 // Prepare image
                 String imagePath = BASE_IMAGE_PATH + data[7];
@@ -107,7 +108,7 @@ public class ProductInitializer {
                 FileMetaData metaData = new FileMetaData();
                 metaData.setMediaCategory("PRODUCT");
                 metaData.setId(imageFile.getName());
-                metaData.setDocumentTypeId(1L);
+                metaData.setDocumentType("1L");
                 metaDataList.add(metaData);
 
                 // Upload media
@@ -132,8 +133,7 @@ public class ProductInitializer {
         ProductCreationRequest request = new ProductCreationRequest();
         request.setName(name);
         request.setDescription(description);
-        request.setCategoryId(1L);
-        request.setBrandId(brandId);
+        request.setCategory("Clothing");
         request.setPrice(price);
         request.setQuantity(quantity);
         request.setInterest(interest);

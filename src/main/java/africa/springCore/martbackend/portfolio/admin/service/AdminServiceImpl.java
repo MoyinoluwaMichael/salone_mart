@@ -27,8 +27,6 @@ import africa.springCore.martbackend.portfolio.customer.service.CustomerService;
 import africa.springCore.martbackend.portfolio.dispatchRider.service.DispatchRiderService;
 import africa.springCore.martbackend.portfolio.order.service.OrderService;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.response.CategoryProductCountDto;
-import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
-import africa.springCore.martbackend.portfolio.product.domain.repository.ProductCategoryRepository;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
 import com.auth0.jwt.interfaces.Claim;
@@ -44,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static africa.springCore.martbackend.core.utils.AppUtils.*;
 import static africa.springCore.martbackend.core.utils.Message.*;
@@ -68,7 +65,6 @@ public class AdminServiceImpl implements AdminService {
     private final CustomerService customerService;
     private final ProductRepository productRepository;
     private final VendorService vendorService;
-    private final ProductCategoryRepository productCategoryRepository;
 
 
     @Override
@@ -138,10 +134,8 @@ public class AdminServiceImpl implements AdminService {
                 .categoryProductCount(
                         results.stream()
                                 .map(result -> {
-                                    Long categoryId = (Long) result[0];
+                                    String category = (String) result[0];
                                     Long productCount = (Long) result[1];
-                                    ProductCategory category = productCategoryRepository.findById(categoryId)
-                                            .orElseThrow(() -> new RuntimeException("Category not found"));
                                     return new CategoryProductCountDto(category, productCount);
                                 })
                                 .toList()

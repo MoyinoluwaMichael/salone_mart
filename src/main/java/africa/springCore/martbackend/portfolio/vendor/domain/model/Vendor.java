@@ -5,8 +5,6 @@ import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import africa.springCore.martbackend.core.domain.model.BioData;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
-import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
-import africa.springCore.martbackend.portfolio.system.domain.model.DocumentType;
 import africa.springCore.martbackend.portfolio.system.domain.model.Media;
 import africa.springCore.martbackend.portfolio.system.domain.model.MediaCategory;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -45,16 +43,11 @@ public class Vendor extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private BioData bioData;
 
-    @JoinColumn(name = "category_id")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private ProductCategory category;
+    @Column(name = "category")
+    private String category;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private List<Media> media = new ArrayList<>();
-
-    public Vendor uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, DocumentType documentType) throws MediaUploadFailedException {
-        Map<String, Object> uploadResponse = new HashMap<>();
+    public Media uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, String documentType) throws MediaUploadFailedException {
+        Map<String, Object> uploadResponse;
         try {
             uploadResponse = cloudinaryUploadService.uploadFile(file, folderName);
         } catch (Exception e) {
@@ -66,13 +59,6 @@ public class Vendor extends BaseEntity {
 
         String publicId = (String) uploadResponse.get("public_id");
         String secureUrl = (String) uploadResponse.get("secure_url");
-        Media media = Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file);
-        this.addMedia(media);
-        return this;
-    }
-
-
-    public void addMedia(Media media) {
-        this.media.add(media);
+        return Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file, bioData.getId());
     }
 }

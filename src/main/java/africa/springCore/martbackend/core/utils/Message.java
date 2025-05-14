@@ -33,6 +33,7 @@ public class Message {
 	public static final String PRODUCT_CATEGORY_WITH_ID_NOT_FOUND = "Product category with id %s not found";
 	public static final String PRODUCT_CATEGORY_WITH_NAME_NOT_FOUND = "Product category with name %s not found";
 	public static final String PRODUCT_WITH_ID_NOT_FOUND = "Product with id %s not found";
+	public static final String PRODUCT_WITH_ID_NOT_OWNED_BY_VENDOR = "Product with id %s not owned by vendor with id %s";
 	public static final String CUSTOMER_WITH_EMAIL_ALREADY_EXISTS = "Customer with email %s already exists";
 	public static final String USER_ADDRESS_WITH_ID_NOT_FOUND= "%s address with id %s not found";
 	public static final String VENDOR_WITH_EMAIL_ALREADY_EXISTS = "Vendor with email %s already exists";

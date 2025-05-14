@@ -14,8 +14,6 @@ import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.
 import africa.springCore.martbackend.infrastructure.exception.MartException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
-import africa.springCore.martbackend.portfolio.product.domain.model.ProductCategory;
-import africa.springCore.martbackend.portfolio.product.domain.repository.ProductCategoryRepository;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorCreationRequest;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.VendorUpdateRequest;
@@ -52,7 +50,6 @@ public class VendorServiceImpl implements VendorService {
     private final BioDataRepository bioDataRepository;
     private final CloudinaryUploadService cloudinaryUploadService;
     private final ProductRepository productRepository;
-    private final ProductCategoryRepository productCategoryRepository;
 
     @Override
     public VendorResponseDto findByEmail(String emailAddress) throws MapperException, UserNotFoundException {
@@ -188,15 +185,6 @@ public class VendorServiceImpl implements VendorService {
         Vendor existingVendor = vendorRepository.findById(id).orElseThrow(() -> new UserNotFoundException(String.format(USER_WITH_ID_NOT_FOUND, id)));
         BioData existingVendorBioData = existingVendor.getBioData();
 
-        ProductCategory productCategory = null;
-        if (vendorUpdateRequest.getCategoryId() != null && vendorUpdateRequest.getCategoryId() > 0) {
-            allFieldsAreEmpty = false;
-            Optional<ProductCategory> foundProductCategory = productCategoryRepository.findById(vendorUpdateRequest.getCategoryId());
-            if (foundProductCategory.isEmpty()) {
-                throw new VendorUpdateException("Category not found");
-            }
-            productCategory = foundProductCategory.get();
-        }
         if (vendorUpdateRequest.getEmailAddress() != null && !StringUtils.isEmpty(vendorUpdateRequest.getEmailAddress())) {
             allFieldsAreEmpty = false;
             validateEmailDuplicity(vendorUpdateRequest.getEmailAddress());
@@ -219,12 +207,13 @@ public class VendorServiceImpl implements VendorService {
             allFieldsAreEmpty = false;
             existingVendor.setBusinessName(vendorUpdateRequest.getBusinessName());
         }
+        if (!StringUtils.isBlank(vendorUpdateRequest.getCategory())) {
+            allFieldsAreEmpty = false;
+            existingVendor.setCategory(vendorUpdateRequest.getCategory());
+        }
 
         if (allFieldsAreEmpty) throw new VendorUpdateException("No field specified for update");
         else {
-            if (productCategory != null) {
-                existingVendor.setCategory(productCategory);
-            }
             existingVendor.setBioData(existingVendorBioData);
             return getVendorResponseDto(vendorRepository.save(existingVendor));
         }

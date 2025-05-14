@@ -2,9 +2,11 @@ package africa.springCore.martbackend.portfolio.product.api;
 
 import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
+import africa.springCore.martbackend.infrastructure.exception.EntityValidationException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.product.domain.dtos.request.ProductCreationRequest;
+import africa.springCore.martbackend.portfolio.product.domain.dtos.request.ProductUpdateRequest;
 import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.portfolio.product.exception.ProductClassificationNotFoundException;
 import africa.springCore.martbackend.portfolio.product.exception.ProductCreationFailedException;
@@ -19,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("api/v1/")
+@RequestMapping("api/v1/products")
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -27,17 +29,16 @@ public class ProductApiResource {
 
     private final ProductService productService;
 
-    @PostMapping("vendors/{vendorId}/products")
+    @PostMapping("")
     @Operation(summary = "Create a New Product")
     public ResponseEntity<Product> postAProduct(
-            @PathVariable(name = "vendorId") Long vendorId,
             @Valid @RequestBody ProductCreationRequest productCreationRequest
     ) throws UserNotFoundException, ProductCreationFailedException, MapperException, ProductClassificationNotFoundException {
-        Product postProductResponse = productService.postAProduct(vendorId, productCreationRequest);
+        Product postProductResponse = productService.postAProduct(productCreationRequest);
         return ResponseEntity.ok(postProductResponse);
     }
 
-    @GetMapping("products/{id}")
+    @GetMapping("/{id}")
     @Operation(summary = "Get product by ID")
     public ResponseEntity<Product> getProductById(
             @PathVariable(name = "id") Long id
@@ -46,7 +47,18 @@ public class ProductApiResource {
         return ResponseEntity.ok(postProductResponse);
     }
 
-    @GetMapping("products")
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Update product by ID")
+    public ResponseEntity<Product> updateProductById(
+            @PathVariable(name = "id") Long id,
+            @Valid @RequestBody ProductUpdateRequest productUpdateRequest
+    ) throws ProductNotFoundException, UserNotFoundException, EntityValidationException, MapperException {
+        Product postProductResponse = productService.updateProductById(id, productUpdateRequest);
+        return ResponseEntity.ok(postProductResponse);
+    }
+
+    @GetMapping("")
     @Operation(summary = "Get all products")
     public ResponseEntity<BasePageableResponse<Product>> getAllProducts(
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
@@ -55,7 +67,7 @@ public class ProductApiResource {
         return ResponseEntity.ok(postProductResponse);
     }
 
-    @GetMapping("products/search")
+    @GetMapping("/search")
     @Operation(summary = "Search products by name or category name")
     public ResponseEntity<BasePageableResponse<Product>> searchProducts(
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,

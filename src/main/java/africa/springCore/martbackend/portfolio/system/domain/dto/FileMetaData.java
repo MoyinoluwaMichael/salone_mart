@@ -8,7 +8,7 @@ import lombok.Setter;
 public class FileMetaData {
 
     private String id;
-    private Long documentTypeId;
+    private String documentType;
     private String mediaCategory;
 
 }
