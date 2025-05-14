@@ -3,7 +3,6 @@ package africa.springCore.martbackend.core.domain.model;
 import africa.springCore.martbackend.core.domain.enums.Role;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
-import africa.springCore.martbackend.portfolio.system.domain.model.DocumentType;
 import africa.springCore.martbackend.portfolio.system.domain.model.Media;
 import africa.springCore.martbackend.portfolio.system.domain.model.MediaCategory;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -15,6 +14,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -89,9 +89,9 @@ public class BioData implements Serializable {
         return this;
     }
 
-    public Media getMediaByDocumentTypeId(Long typeId) {
+    public Media getMediaByDocumentType(String documentType) {
         return this.media.stream()
-                .filter(m -> typeId.equals(m.getDocumentType().getId()))
+                .filter(m -> StringUtils.equalsIgnoreCase(documentType, m.getDocumentType()))
                 .findFirst()
                 .orElse(null);
     }
@@ -106,7 +106,7 @@ public class BioData implements Serializable {
         return getMediaByType(MediaCategory.DOCUMENT);
     }
 
-    public BioData uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, DocumentType documentType) throws MediaUploadFailedException {
+    public BioData uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, String documentType) throws MediaUploadFailedException {
         Map<String, Object> uploadResponse = new HashMap<>();
         try {
             uploadResponse = cloudinaryUploadService.uploadFile(file, folderName);
@@ -119,7 +119,7 @@ public class BioData implements Serializable {
 
         String publicId = (String) uploadResponse.get("public_id");
         String secureUrl = (String) uploadResponse.get("secure_url");
-        Media media = Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file);
+        Media media = Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file, id);
         this.addMedia(media);
         return this;
     }

@@ -9,25 +9,18 @@ import java.math.BigDecimal;
 
 @Setter
 @Getter
-public class ProductCreationRequest {
+public class ProductUpdateRequest {
 
-    @NotBlank(message = "name is mandatory")
     private String name;
 
-    @NotBlank(message = "description is mandatory")
     private String description;
 
-    @NotBlank(message = "categoryId is mandatory")
     private String category;
 
-    @NotNull(message = "price is mandatory")
     private BigDecimal price;
 
-    @NotNull(message = "quantity is mandatory")
     private Long quantity;
 
-    @NotNull(message = "vendorId is mandatory")
+    private Long priceInterest;
     private Long vendorId;
-
-    private Long interest;
 }

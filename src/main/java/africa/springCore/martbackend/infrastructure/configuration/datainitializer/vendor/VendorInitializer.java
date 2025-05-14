@@ -80,13 +80,13 @@ public class VendorInitializer {
             FileMetaData metaData = new FileMetaData();
             metaData.setMediaCategory("USER");
             metaData.setId(imageMultipartFile.getOriginalFilename());
-            metaData.setDocumentTypeId(1L);
+            metaData.setDocumentType("Display Picture");
             metaDataList.add(metaData);
 
             FileMetaData metaData2 = new FileMetaData();
             metaData2.setMediaCategory("DOCUMENT");
             metaData2.setId(pdfMultipartFile.getOriginalFilename());
-            metaData2.setDocumentTypeId(2L);
+            metaData2.setDocumentType("Business Certificate");
             metaDataList.add(metaData2);
 
             mediaService.uploadMedia(multipartFiles, martMapper.writeValueAsString(metaDataList), vendorResponseDto.getBioData().getId(), null);

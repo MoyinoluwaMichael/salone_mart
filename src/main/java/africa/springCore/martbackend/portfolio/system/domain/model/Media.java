@@ -30,9 +30,11 @@ public class Media implements Serializable {
     @Column(name = "type")
     private MediaCategory type;
 
-    @JoinColumn(name = "document_type_id")
-    @ManyToOne(fetch = FetchType.EAGER)
-    private DocumentType documentType; // e.g., "PROFILE_PICTURE", "ID_DOCUMENT", "CERTIFICATE"
+    @Column(name = "owner_id")
+    private Long ownerId;
+
+    @Column(name = "document_type")
+    private String documentType; // e.g., "PROFILE_PICTURE", "ID_DOCUMENT", "CERTIFICATE"
 
     @Column(name = "public_id")
     private String publicId; // Cloudinary public_id
@@ -61,11 +63,11 @@ public class Media implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime updatedAt;
 
-    public static Media userInstance(MediaCategory mediaCategory, DocumentType documentName, String publicId, String secureUrl, MultipartFile file) {
+    public static Media userInstance(MediaCategory mediaCategory, String documentName, String publicId, String secureUrl, MultipartFile file, Long ownerId) {
         if (file == null) {
             throw new IllegalArgumentException("File cannot be null");
         }
-        return new Media(null, mediaCategory, documentName, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
+        return new Media(null, mediaCategory, ownerId, documentName, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
     }
 
     @PrePersist

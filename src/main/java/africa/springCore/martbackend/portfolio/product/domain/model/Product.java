@@ -3,7 +3,6 @@ package africa.springCore.martbackend.portfolio.product.domain.model;
 import africa.springCore.martbackend.core.domain.model.BaseEntity;
 import africa.springCore.martbackend.infrastructure.cloudservice.storageservice.service.CloudinaryUploadService;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
-import africa.springCore.martbackend.portfolio.system.domain.model.DocumentType;
 import africa.springCore.martbackend.portfolio.system.domain.model.Media;
 import africa.springCore.martbackend.portfolio.system.domain.model.MediaCategory;
 import jakarta.persistence.*;
@@ -17,9 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serial;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -44,19 +41,11 @@ public class Product extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 2000)
     private String description;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Media> media = new ArrayList<>();
-
-    @JoinColumn(name = "category_id")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private ProductCategory category;
-
-    @JoinColumn(name = "brand_id")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private ProductBrand brand;
+    @Column(name = "category")
+    private String category;
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;
@@ -75,7 +64,7 @@ public class Product extends BaseEntity {
         this.interest = ProductInterest.instanceOf(true, interest);
     }
 
-    public Product uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, DocumentType documentType) throws MediaUploadFailedException {
+    public Media uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, String documentType) throws MediaUploadFailedException {
         Map<String, Object> uploadResponse = new HashMap<>();
         try {
             uploadResponse = cloudinaryUploadService.uploadFile(file, folderName);
@@ -88,12 +77,6 @@ public class Product extends BaseEntity {
 
         String publicId = (String) uploadResponse.get("public_id");
         String secureUrl = (String) uploadResponse.get("secure_url");
-        Media media = Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file);
-        this.addMedia(media);
-        return this;
-    }
-
-    public void addMedia(Media media) {
-        this.media.add(media);
+        return Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file, id);
     }
 }

@@ -14,7 +14,7 @@ public class VendorUpdateRequest {
 
     private String lastName;
     private String businessName;
-    private Long categoryId;
+    private String category;
 
     @Pattern(regexp = "^\\+?[0-9. ()-]{7,25}$", message = "Phone number is invalid")
     private String phoneNumber;
