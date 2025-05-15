@@ -20,6 +20,8 @@ import africa.springCore.martbackend.portfolio.vendor.domain.dtos.requests.Vendo
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
 import africa.springCore.martbackend.portfolio.vendor.domain.repository.VendorRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
@@ -56,10 +58,7 @@ public class VendorServiceImpl implements VendorService {
         Vendor foundVendor = vendorRepository.findByBioData_EmailAddress(emailAddress).orElseThrow(
                 ()-> new UserNotFoundException(String.format(USER_WITH_EMAIL_NOT_FOUND, emailAddress))
         );
-        BioDataResponseDto bioDataResponse = martMapper.readValue(foundVendor.getBioData(), BioDataResponseDto.class);
-        VendorResponseDto vendorResponseDto = martMapper.readValue(foundVendor, VendorResponseDto.class);
-        vendorResponseDto.setBioData(bioDataResponse);
-        return vendorResponseDto;
+        return VendorResponseDto.parse(foundVendor);
     }
 
     @Override

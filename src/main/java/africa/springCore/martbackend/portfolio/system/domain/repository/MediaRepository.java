@@ -14,4 +14,6 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     Page<Media> findAllByOwnerId(Long ownerId, Pageable pageable);
 
     Page<Media> findAllByDocumentType(String documentType, Pageable pageable);
+
+    Media findByDocumentTypeAndOwnerId(String documentType, Long ownerId);
 }

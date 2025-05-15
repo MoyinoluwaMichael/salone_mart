@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,8 +61,9 @@ public class BioData implements Serializable {
     @Column(name = "phone_number", nullable = true, unique = true)
     private String phoneNumber;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<Media> media = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "display_picture_id")
+    private Media displayPicture;
 
     @Enumerated(EnumType.STRING)
     private List<Role> roles;
@@ -74,54 +74,5 @@ public class BioData implements Serializable {
     private LocalDateTime createdAt;
 
     private Boolean isEnabled;
-
-    public void addMedia(Media media) {
-        this.media.add(media);
-    }
-
-    public BioData removeMedia(Media media, CloudinaryUploadService cloudinaryUploadService) throws MediaUploadFailedException {
-        this.media.remove(media);
-        try {
-            cloudinaryUploadService.deleteFile(media.getPublicId());
-        } catch (Exception e) {
-            throw new MediaUploadFailedException(e.getMessage());
-        }
-        return this;
-    }
-
-    public Media getMediaByDocumentType(String documentType) {
-        return this.media.stream()
-                .filter(m -> StringUtils.equalsIgnoreCase(documentType, m.getDocumentType()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public List<Media> getMediaByType(MediaCategory type) {
-        return this.media.stream()
-                .filter(m -> type.equals(m.getType()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Media> getDocuments() {
-        return getMediaByType(MediaCategory.DOCUMENT);
-    }
-
-    public BioData uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, String documentType) throws MediaUploadFailedException {
-        Map<String, Object> uploadResponse = new HashMap<>();
-        try {
-            uploadResponse = cloudinaryUploadService.uploadFile(file, folderName);
-        } catch (Exception e) {
-            throw new MediaUploadFailedException("User image upload failed: "+ e.getMessage());
-        }
-        if (uploadResponse.containsKey("error")) {
-            throw new MediaUploadFailedException("User image upload failed");
-        }
-
-        String publicId = (String) uploadResponse.get("public_id");
-        String secureUrl = (String) uploadResponse.get("secure_url");
-        Media media = Media.userInstance(mediaCategory, documentType, publicId, secureUrl, file, id);
-        this.addMedia(media);
-        return this;
-    }
 
 }

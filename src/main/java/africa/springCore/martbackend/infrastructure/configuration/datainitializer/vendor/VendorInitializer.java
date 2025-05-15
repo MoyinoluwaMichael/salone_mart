@@ -89,7 +89,7 @@ public class VendorInitializer {
             metaData2.setDocumentType("Business Certificate");
             metaDataList.add(metaData2);
 
-            mediaService.uploadMedia(multipartFiles, martMapper.writeValueAsString(metaDataList), vendorResponseDto.getBioData().getId(), null);
+            mediaService.uploadProfilePicture(multipartFiles.get(0), vendorResponseDto.getBioData().getId());
 
         } catch (Exception e) {
             e.printStackTrace();

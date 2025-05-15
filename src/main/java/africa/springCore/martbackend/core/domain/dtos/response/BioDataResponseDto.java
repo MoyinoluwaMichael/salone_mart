@@ -1,6 +1,7 @@
 package africa.springCore.martbackend.core.domain.dtos.response;
 
 import africa.springCore.martbackend.core.domain.enums.Role;
+import africa.springCore.martbackend.core.domain.model.BioData;
 import africa.springCore.martbackend.portfolio.system.domain.model.Media;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -19,9 +20,23 @@ public class BioDataResponseDto {
     private String lastName;
     private String phoneNumber;
     private String emailAddress;
-    private List<Media> media;
+    private String displayPicture;
     private List<Role> roles;
     private Boolean isEnabled;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt;
+
+    public static BioDataResponseDto parse(BioData foundBioData) {
+        BioDataResponseDto responseDto = new BioDataResponseDto();
+        responseDto.setId(foundBioData.getId());
+        responseDto.setFirstName(foundBioData.getFirstName());
+        responseDto.setLastName(foundBioData.getLastName());
+        responseDto.setEmailAddress(foundBioData.getEmailAddress());
+        responseDto.setPhoneNumber(foundBioData.getPhoneNumber());
+        responseDto.setRoles(foundBioData.getRoles());
+        responseDto.setIsEnabled(foundBioData.getIsEnabled());
+        responseDto.setCreatedAt(foundBioData.getCreatedAt());
+        responseDto.setDisplayPicture(foundBioData.getDisplayPicture() == null ? null : foundBioData.getDisplayPicture().getSecureUrl());
+        return responseDto;
+    }
 }

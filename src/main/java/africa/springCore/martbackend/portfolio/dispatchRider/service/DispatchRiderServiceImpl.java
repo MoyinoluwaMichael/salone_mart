@@ -1,12 +1,11 @@
 package africa.springCore.martbackend.portfolio.dispatchRider.service;
 
-import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
 import africa.springCore.martbackend.core.portfolio.dispatchRider.domain.model.DispatchRider;
 import africa.springCore.martbackend.core.portfolio.dispatchRider.domain.repository.DispatchRiderRepository;
-import africa.springCore.martbackend.core.portfolio.dispatchRider.domain.dtos.responses.DispatchRiderResponseDto;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.core.utils.MartMapper;
+import africa.springCore.martbackend.portfolio.dispatchRider.domain.dtos.responses.DispatchRiderResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +23,7 @@ public class DispatchRiderServiceImpl implements DispatchRiderService {
         DispatchRider foundRider = dispatchRiderRepository.findByBioData_EmailAddress(emailAddress).orElseThrow(
                 ()-> new UserNotFoundException(String.format(USER_WITH_EMAIL_NOT_FOUND, emailAddress))
         );
-        BioDataResponseDto bioDataResponse = martMapper.readValue(foundRider.getBioData(), BioDataResponseDto.class);
-        DispatchRiderResponseDto dispatchRiderResponseDto = martMapper.readValue(foundRider, DispatchRiderResponseDto.class);
-        dispatchRiderResponseDto.setBioData(bioDataResponse);
-        return dispatchRiderResponseDto;
+        return DispatchRiderResponseDto.parse(foundRider);
     }
 
     @Override

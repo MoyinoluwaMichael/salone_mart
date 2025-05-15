@@ -112,10 +112,9 @@ public class ProductInitializer {
                 metaDataList.add(metaData);
 
                 // Upload media
-                mediaService.uploadMedia(
+                mediaService.uploadProductMedia(
                         multipartFiles,
                         martMapper.writeValueAsString(metaDataList),
-                        bioDataId,
                         response.getId()
                 );
             }
