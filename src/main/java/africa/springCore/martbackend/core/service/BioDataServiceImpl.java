@@ -7,6 +7,8 @@ import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserAlreadyExistsException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.core.utils.MartMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,7 @@ public class BioDataServiceImpl implements BioDataService {
         BioData foundBioData = bioDataRepository.findByEmailAddress(email).orElseThrow(
                 ()-> new UserNotFoundException(String.format(USER_WITH_EMAIL_NOT_FOUND, email))
         );
-        return martMapper.readValue(foundBioData, BioDataResponseDto.class);
+        return BioDataResponseDto.parse(foundBioData);
     }
 
 

@@ -278,9 +278,6 @@ public class AdminServiceImpl implements AdminService {
         Admin foundAdmin = adminRepository.findByBioData_EmailAddress(emailAddress).orElseThrow(
                 () -> new UserNotFoundException(String.format(USER_WITH_EMAIL_NOT_FOUND, emailAddress))
         );
-        BioDataResponseDto bioDataResponse = martMapper.readValue(foundAdmin.getBioData(), BioDataResponseDto.class);
-        AdminResponseDto adminResponseDto = martMapper.readValue(foundAdmin, AdminResponseDto.class);
-        adminResponseDto.setBioData(bioDataResponse);
-        return adminResponseDto;
+        return AdminResponseDto.parse(foundAdmin);
     }
 }

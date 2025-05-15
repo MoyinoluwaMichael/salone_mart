@@ -120,10 +120,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private CustomerResponseDto getCustomerResponseDto(Customer foundCustomer) throws MapperException {
-        BioDataResponseDto bioDataResponse = martMapper.readValue(foundCustomer.getBioData(), BioDataResponseDto.class);
-        CustomerResponseDto customerResponseDto = martMapper.readValue(foundCustomer, CustomerResponseDto.class);
-        customerResponseDto.setBioData(bioDataResponse);
-        return customerResponseDto;
+        return CustomerResponseDto.parse(foundCustomer);
     }
 
     @Override

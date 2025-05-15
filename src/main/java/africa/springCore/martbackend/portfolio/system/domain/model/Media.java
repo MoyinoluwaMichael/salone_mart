@@ -33,6 +33,9 @@ public class Media implements Serializable {
     @Column(name = "owner_id")
     private Long ownerId;
 
+    @Column(name = "product_id")
+    private Long productId;
+
     @Column(name = "document_type")
     private String documentType; // e.g., "PROFILE_PICTURE", "ID_DOCUMENT", "CERTIFICATE"
 
@@ -67,7 +70,7 @@ public class Media implements Serializable {
         if (file == null) {
             throw new IllegalArgumentException("File cannot be null");
         }
-        return new Media(null, mediaCategory, ownerId, documentName, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
+        return new Media(null, mediaCategory, ownerId, null, documentName, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
     }
 
     @PrePersist
