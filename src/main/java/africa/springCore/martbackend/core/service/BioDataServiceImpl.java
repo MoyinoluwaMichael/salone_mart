@@ -42,7 +42,7 @@ public class BioDataServiceImpl implements BioDataService {
         BioData foundBioData = bioDataRepository.findByPhoneNumber(phoneNumber).orElseThrow(
                 ()-> new UserNotFoundException(String.format(USER_WITH_PHONE_NUMBER_NOT_FOUND, phoneNumber))
         );
-        return martMapper.readValue(foundBioData, BioDataResponseDto.class);
+        return BioDataResponseDto.parse(foundBioData);
     }
 
 }

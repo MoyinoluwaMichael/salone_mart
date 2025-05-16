@@ -11,10 +11,6 @@ import java.util.List;
 @Getter
 public class OrderCreationRequest {
 
-    @NotNull(message = "At least one order is required")
     private List<ProductOrderCreationRequest> productOrders;
-
-    @NotNull(message = "Delivery fee is mandatory")
-    private BigDecimal deliveryFee;
 
 }

@@ -1,7 +1,5 @@
 package africa.springCore.martbackend.portfolio.product.domain.dtos.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +19,6 @@ public class ProductUpdateRequest {
 
     private Long quantity;
 
-    private Long priceInterest;
+    private Long priceDiscount;
     private Long vendorId;
 }

@@ -29,5 +29,5 @@ public class ProductCreationRequest {
     @NotNull(message = "vendorId is mandatory")
     private Long vendorId;
 
-    private Long interest;
+    private Long discount;
 }

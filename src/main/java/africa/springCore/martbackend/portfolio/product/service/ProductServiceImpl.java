@@ -66,9 +66,9 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productCreationRequest.getPrice());
         product.setCategory(productCreationRequest.getCategory());
         product.setVendorId(vendorId);
-        if (productCreationRequest.getInterest() != null && productCreationRequest.getInterest() > 0) {
-            product.setInterest(productCreationRequest.getInterest());
-            product.setDiscountedPrice(getDiscountedPrice(productCreationRequest.getPrice(), productCreationRequest.getInterest()));
+        if (productCreationRequest.getDiscount() != null && productCreationRequest.getDiscount() > 0) {
+            product.setDiscount(productCreationRequest.getDiscount());
+            product.setDiscountedPrice(getDiscountedPrice(productCreationRequest.getPrice(), productCreationRequest.getDiscount()));
         }
         return productRepository.save(product);
     }
@@ -76,8 +76,8 @@ public class ProductServiceImpl implements ProductService {
     private BigDecimal getDiscountedPrice(BigDecimal price, Long interest) {
         BigDecimal interestInPercentage = BigDecimal.valueOf(interest);
         BigDecimal interestInDecimal = interestInPercentage.divide(BigDecimal.valueOf(100), 3, RoundingMode.HALF_UP);
-        BigDecimal priceInterest = price.multiply(interestInDecimal).setScale(3, RoundingMode.HALF_UP);
-        return price.subtract(priceInterest).setScale(0, RoundingMode.HALF_UP);
+        BigDecimal priceDiscount = price.multiply(interestInDecimal).setScale(3, RoundingMode.HALF_UP);
+        return price.subtract(priceDiscount).setScale(0, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -145,9 +145,9 @@ public class ProductServiceImpl implements ProductService {
         if (productUpdateRequest.getQuantity() != null && productUpdateRequest.getQuantity() > 0) {
             product.setQuantity(productUpdateRequest.getQuantity());
         }
-        if (productUpdateRequest.getPriceInterest() != null && productUpdateRequest.getPriceInterest() > 0) {
-            product.setInterest(productUpdateRequest.getPriceInterest());
-            product.setDiscountedPrice(getDiscountedPrice(product.getPrice(), productUpdateRequest.getPriceInterest()));
+        if (productUpdateRequest.getPriceDiscount() != null && productUpdateRequest.getPriceDiscount() > 0) {
+            product.setDiscount(productUpdateRequest.getPriceDiscount());
+            product.setDiscountedPrice(getDiscountedPrice(product.getPrice(), productUpdateRequest.getPriceDiscount()));
         }
 
         return productRepository.save(product);

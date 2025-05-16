@@ -125,11 +125,8 @@ public class VendorServiceImpl implements VendorService {
         }
     }
 
-    private VendorResponseDto getVendorResponseDto(Vendor foundVendor) throws MapperException {
-        BioDataResponseDto bioDataResponse = martMapper.readValue(foundVendor.getBioData(), BioDataResponseDto.class);
-        VendorResponseDto VendorResponseDto = martMapper.readValue(foundVendor, VendorResponseDto.class);
-        VendorResponseDto.setBioData(bioDataResponse);
-        return VendorResponseDto;
+    private VendorResponseDto getVendorResponseDto(Vendor foundVendor) {
+        return VendorResponseDto.parse(foundVendor);
     }
 
     @Override

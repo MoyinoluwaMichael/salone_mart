@@ -2,6 +2,7 @@ package africa.springCore.martbackend.portfolio.system.api;
 
 import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.springCore.martbackend.core.domain.dtos.response.BioDataResponseDto;
+import africa.springCore.martbackend.infrastructure.exception.EntityValidationException;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.MediaUploadFailedException;
 import africa.springCore.martbackend.portfolio.system.domain.dto.FileMetaData;
@@ -45,9 +46,18 @@ public class MediaApiResource {
     public ResponseEntity<String> uploadProductMedia(
             @RequestParam("file") List<MultipartFile> files,
             @RequestParam("fileMetaData") String fileMetaData,
-            @RequestParam(name = "productId", required = false) Long productId
+            @RequestParam(name = "productId", required = false) Long productId,
+            @RequestParam(name = "bioDataId", required = false) Long bioDataId
     ) throws MapperException, MediaUploadFailedException {
-        return ResponseEntity.ok().body(mediaService.uploadProductMedia(files, fileMetaData, productId));
+        return ResponseEntity.ok().body(mediaService.uploadProductMedia(files, fileMetaData, productId, bioDataId));
+    }
+
+    @GetMapping("/products/{productId}")
+    public ResponseEntity<BasePageableResponse<Media>> retrieveProductMedia(
+            @PathVariable(name = "productId") Long productId,
+            @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) throws EntityValidationException {
+        return ResponseEntity.ok().body(mediaService.retrieveProductMedia(productId, pageable));
     }
 
 

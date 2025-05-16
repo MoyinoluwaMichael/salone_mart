@@ -37,7 +37,7 @@ public class Media implements Serializable {
     private Long productId;
 
     @Column(name = "document_type")
-    private String documentType; // e.g., "PROFILE_PICTURE", "ID_DOCUMENT", "CERTIFICATE"
+    private String documentType; // e.g., "Display ", "ID_DOCUMENT", "CERTIFICATE"
 
     @Column(name = "public_id")
     private String publicId; // Cloudinary public_id
@@ -66,11 +66,21 @@ public class Media implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime updatedAt;
 
-    public static Media userInstance(MediaCategory mediaCategory, String documentName, String publicId, String secureUrl, MultipartFile file, Long ownerId) {
+    public static Media userInstance(MediaCategory mediaCategory, String documentType, String publicId, String secureUrl, MultipartFile file, Long ownerId) {
+        validateFile(file);
+        return new Media(null, mediaCategory, ownerId, null, documentType, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    private static void validateFile(MultipartFile file) {
         if (file == null) {
             throw new IllegalArgumentException("File cannot be null");
         }
-        return new Media(null, mediaCategory, ownerId, null, documentName, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    public static Media userInstance(MediaCategory mediaCategory, String documentType, String publicId, String secureUrl, MultipartFile file, Long ownerId, Long productId) {
+        validateFile(file);
+        return new Media(null, mediaCategory, ownerId, productId, documentType, publicId, secureUrl, file.getOriginalFilename(), file.getContentType(), file.getSize(), LocalDateTime.now(), LocalDateTime.now());
+
     }
 
     @PrePersist
