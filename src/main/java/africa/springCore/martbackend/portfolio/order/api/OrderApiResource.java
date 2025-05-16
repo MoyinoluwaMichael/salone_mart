@@ -70,11 +70,11 @@ public class OrderApiResource {
         return ResponseEntity.ok(orderResponseDto);
     }
 
-    @GetMapping("{customerId}")
+    @GetMapping("/customers/{customerId}")
     @Operation(summary = "Get all Customer's orders")
     public ResponseEntity<BasePageableResponse<OrderResponseDto>> getAllOrders(
             @PathVariable(name = "customerId") Long customerId,
-            @RequestParam(name = "orderStatus", required = false) String orderStatus,
+            @RequestParam(name = "orderStatus", defaultValue = "all") String orderStatus,
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) throws UserNotFoundException, MapperException {
         BasePageableResponse<OrderResponseDto> orderListingDto = orderService.getCustomerOrders(customerId, orderStatus, pageable);
