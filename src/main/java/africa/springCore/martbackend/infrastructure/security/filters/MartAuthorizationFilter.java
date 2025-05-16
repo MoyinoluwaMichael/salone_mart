@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 import static africa.springCore.martbackend.core.utils.AppUtils.*;
 import static africa.springCore.martbackend.core.utils.SecurityUtils.getAuthWhiteList;
+import static africa.springCore.martbackend.core.utils.SecurityUtils.getGetUrlWhiteList;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -46,8 +48,16 @@ public class MartAuthorizationFilter extends OncePerRequestFilter {
         ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
         logRequestDetails(wrappedRequest);
-        boolean isPathInAuthWhitelist = Arrays.stream(getAuthWhiteList()).toList().contains(request.getServletPath()) &&
-                request.getMethod().equals(HttpMethod.POST.name());
+
+        Set<String> authWhiteList = new HashSet<>(Arrays.asList(getAuthWhiteList()));
+        Set<String> getUrlWhiteList = new HashSet<>(Arrays.asList(getGetUrlWhiteList()));
+        AntPathMatcher pathMatcher = new AntPathMatcher();
+        boolean isPathInAuthWhitelist =
+                (authWhiteList.stream().anyMatch(pattern -> pathMatcher.match(pattern, request.getServletPath())) &&
+                        request.getMethod().equals(HttpMethod.POST.name())) ||
+                        (getUrlWhiteList.stream().anyMatch(pattern -> pathMatcher.match(pattern, request.getServletPath())) &&
+                                request.getMethod().equals(HttpMethod.GET.name()));
+        System.err.println("isPathInAuthWhitelist: "+request.getServletPath()+"> "+isPathInAuthWhitelist);
         if (isPathInAuthWhitelist) filterChain.doFilter(request, wrappedResponse);
         else authorizeRequest(request, wrappedResponse, filterChain);
         logResponseDetails(wrappedResponse);

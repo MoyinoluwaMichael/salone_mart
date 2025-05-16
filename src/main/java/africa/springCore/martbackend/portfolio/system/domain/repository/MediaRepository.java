@@ -1,11 +1,10 @@
 package africa.springCore.martbackend.portfolio.system.domain.repository;
 
 import africa.springCore.martbackend.portfolio.system.domain.model.Media;
+import africa.springCore.martbackend.portfolio.system.domain.model.MediaCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface MediaRepository extends JpaRepository<Media, Long> {
 
@@ -16,4 +15,6 @@ public interface MediaRepository extends JpaRepository<Media, Long> {
     Page<Media> findAllByDocumentType(String documentType, Pageable pageable);
 
     Media findByDocumentTypeAndOwnerId(String documentType, Long ownerId);
+
+    Page<Media> findAllByProductIdAndTypeAndDocumentType(Long productId, MediaCategory type, String documentType, Pageable pageable);
 }

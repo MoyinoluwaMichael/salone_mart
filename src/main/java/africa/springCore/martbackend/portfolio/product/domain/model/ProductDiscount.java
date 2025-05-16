@@ -7,13 +7,13 @@ import lombok.*;
 import java.io.Serial;
 
 @Entity
-@Table(name = "product_interest")
+@Table(name = "product_discount")
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
 @AllArgsConstructor(staticName = "instance", access = AccessLevel.PRIVATE)
-public class ProductInterest extends BaseEntity {
+public class ProductDiscount extends BaseEntity {
     @Serial
     private static final long serialVersionUID = -7466640123337613601L;
 
@@ -25,10 +25,10 @@ public class ProductInterest extends BaseEntity {
     @Column(name = "active", nullable = false)
     private boolean active;
 
-    @Column(name = "price_interest", nullable = false)
-    private Long priceInterest;
+    @Column(name = "price_discount", nullable = false)
+    private Long priceDiscount;
 
-    public static ProductInterest instanceOf(boolean active, Long priceInterest) {
-        return new ProductInterest(null, active, priceInterest);
+    public static ProductDiscount instanceOf(boolean active, Long priceInterest) {
+        return new ProductDiscount(null, active, priceInterest);
     }
 }

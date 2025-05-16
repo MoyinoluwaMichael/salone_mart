@@ -7,6 +7,7 @@ import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.product.service.ProductService;
 import africa.springCore.martbackend.portfolio.system.domain.dto.FileMetaData;
+import africa.springCore.martbackend.portfolio.system.domain.model.MediaCategory;
 import africa.springCore.martbackend.portfolio.system.service.MediaService;
 import africa.springCore.martbackend.portfolio.vendor.domain.dtos.responses.VendorResponseDto;
 import africa.springCore.martbackend.portfolio.vendor.domain.model.Vendor;
@@ -29,10 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static africa.springCore.martbackend.portfolio.system.service.MediaServiceImpl.DISPLAY_PICTURE;
+
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-@DependsOn({"vendorInitializer", "codeValueInitializer"})
+@DependsOn({"codeValueInitializer", "vendorInitializer"})
 public class ProductInitializer {
 
     private final ProductService productService;
@@ -106,17 +109,17 @@ public class ProductInitializer {
 
                 // Add metadata
                 FileMetaData metaData = new FileMetaData();
-                metaData.setMediaCategory("PRODUCT");
+                metaData.setMediaCategory(MediaCategory.PRODUCT.name());
                 metaData.setId(imageFile.getName());
-                metaData.setDocumentType("1L");
+                metaData.setDocumentType(DISPLAY_PICTURE);
                 metaDataList.add(metaData);
 
                 // Upload media
                 mediaService.uploadProductMedia(
                         multipartFiles,
                         martMapper.writeValueAsString(metaDataList),
-                        response.getId()
-                );
+                        response.getId(),
+                        bioDataId);
             }
 
             log.info("Products initialized successfully");
@@ -135,7 +138,7 @@ public class ProductInitializer {
         request.setCategory("Clothing");
         request.setPrice(price);
         request.setQuantity(quantity);
-        request.setInterest(interest);
+        request.setDiscount(interest);
         return request;
     }
 }

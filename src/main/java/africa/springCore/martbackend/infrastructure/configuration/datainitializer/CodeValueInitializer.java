@@ -15,7 +15,6 @@ public class CodeValueInitializer {
     CommandLineRunner codes(CodeRepository codeRepository, CodeValueRepository codeValueRepository) {
         return args -> {
             Code categoryCode = findOrCreateCode("Product Category", codeRepository);
-            Code statusCode = findOrCreateCode("Product Status", codeRepository);
             Code vendorDocCode = findOrCreateCode("Vendor Documentation Requirement", codeRepository);
             Code documentType = findOrCreateCode("Document Type", codeRepository);
 

@@ -10,6 +10,7 @@ import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@DependsOn("codeValueInitializer")
 public class VendorInitializer {
 
     private final VendorService vendorService;

@@ -56,12 +56,12 @@ public class Product extends BaseEntity {
     @Column(name = "quantity", nullable = false)
     private Long quantity;
 
-    @JoinColumn(name = "interest")
+    @JoinColumn(name = "dicount_id")
     @OneToOne(cascade = CascadeType.ALL)
-    private ProductInterest interest;
+    private ProductDiscount discount;
 
-    public void setInterest(Long interest) {
-        this.interest = ProductInterest.instanceOf(true, interest);
+    public void setDiscount(Long discount) {
+        this.discount = ProductDiscount.instanceOf(true, discount);
     }
 
     public Media uploadAndAddMedia(MultipartFile file, CloudinaryUploadService cloudinaryUploadService, MediaCategory mediaCategory, String folderName, String documentType) throws MediaUploadFailedException {

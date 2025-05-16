@@ -1,26 +1,24 @@
 package africa.springCore.martbackend.portfolio.order.service;
 
+import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.springCore.martbackend.core.domain.enums.OrderStatus;
 import africa.springCore.martbackend.core.utils.MartMapper;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderNotFoundException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderUpdateFailedException;
 import africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException;
-import africa.springCore.martbackend.infrastructure.configuration.ApplicationProperty;
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.customer.service.CustomerService;
 import africa.springCore.martbackend.portfolio.order.domain.dtos.request.OrderCreationRequest;
 import africa.springCore.martbackend.portfolio.order.domain.dtos.request.ProductOrderCreationRequest;
-import africa.springCore.martbackend.portfolio.order.domain.dtos.response.OrderListingDto;
 import africa.springCore.martbackend.portfolio.order.domain.dtos.response.OrderResponseDto;
-import africa.springCore.martbackend.portfolio.order.domain.dtos.response.ProductOrderResponseDto;
 import africa.springCore.martbackend.portfolio.order.domain.model.Order;
 import africa.springCore.martbackend.portfolio.order.domain.repository.OrderRepository;
 import africa.springCore.martbackend.portfolio.product.domain.model.Product;
 import africa.springCore.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.springCore.martbackend.portfolio.product.service.ProductService;
-import africa.springCore.martbackend.portfolio.vendor.service.VendorService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,7 +35,6 @@ import static africa.springCore.martbackend.core.utils.AppUtils.CHECKOUT;
 import static africa.springCore.martbackend.core.utils.AppUtils.COMPLETE;
 import static africa.springCore.martbackend.core.utils.AppUtils.DELIVER;
 import static africa.springCore.martbackend.core.utils.AppUtils.IN_TRANSIT;
-import static africa.springCore.martbackend.core.utils.AppUtils.NEW_ORDER;
 
 @Service
 @RequiredArgsConstructor
@@ -52,45 +48,41 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
+    @Transactional
     public OrderResponseDto postAnOrder(Long customerId, OrderCreationRequest orderCreationRequest) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException {
         customerService.findById(customerId);
         if (orderCreationRequest.getProductOrders().isEmpty()) {
-            throw new OrderCreationFailedException("At least one order is required");
+            throw new OrderCreationFailedException("At least one product is required");
         }
-        Order order = martMapper.readValue(orderCreationRequest, Order.class);
+        Order order = Order.instance(orderCreationRequest);
         order.setCustomerId(customerId);
-        BigDecimal totalAmount = calculateTotalAmount(orderCreationRequest.getProductOrders(), NEW_ORDER);
-        order.setTotalAmount(totalAmount);
-        order.setOrderStatus(OrderStatus.IN_CART);
-        order.setTotalOrderAmount(totalAmount.add(orderCreationRequest.getDeliveryFee()));
-        return getOrderResponseDto(orderRepository.save(order));
+        BigDecimal totalAmount = calculateTotalAmount(orderCreationRequest.getProductOrders());
+        order.setTotalProductAmount(totalAmount);
+        order.setOrderStatus(OrderStatus.PENDING);
+        BigDecimal taxRate = BigDecimal.valueOf(0.1);
+        order.setTax(order.getTotalProductAmount().multiply(taxRate));
+        order.setDeliveryFee(BigDecimal.ZERO);
+        order.setTotalOrderAmount();
+        order = orderRepository.save(order);
+        for (ProductOrderCreationRequest productOrder : orderCreationRequest.getProductOrders()) {
+            Product product = productRepository.findById(productOrder.getProductId()).get();
+            product.setQuantity(product.getQuantity() - productOrder.getQuantity());
+            productRepository.save(product);
+        }
+        return martMapper.readValue(order, OrderResponseDto.class);
     }
 
     private OrderResponseDto getOrderResponseDto(Order order) throws MapperException, ProductNotFoundException {
-        OrderResponseDto orderResponseDto = martMapper.readValue(order, OrderResponseDto.class);
-        for (int i = 0; i < order.getProductOrders().size(); i++) {
-            ProductOrderResponseDto productOrderResponseDto = orderResponseDto.getProductOrders().get(i);
-            Long productId = order.getProductOrders().get(i).getProductId();
-            Long quantity = order.getProductOrders().get(i).getQuantity();
-            productOrderResponseDto.setProduct(productService.getProductById(productId));
-            ProductOrderCreationRequest request = new ProductOrderCreationRequest();
-            request.setProductId(productId);
-            request.setQuantity(quantity);
-            productOrderResponseDto.setPrice(calculateTotalAmount(Collections.singletonList(request), null));
-        }
-        return orderResponseDto;
+        return martMapper.readValue(order, OrderResponseDto.class);
     }
 
-    @Override
-    public BigDecimal calculateTotalAmount(List<ProductOrderCreationRequest> productOrders, String orderType) throws MapperException, ProductNotFoundException {
+    public BigDecimal calculateTotalAmount(List<ProductOrderCreationRequest> productOrders) throws MapperException, ProductNotFoundException {
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (ProductOrderCreationRequest productOrder : productOrders) {
             productService.getProductById(productOrder.getProductId());
             Product product = productRepository.findById(productOrder.getProductId()).get();
-            if (orderType != null && orderType.equals(NEW_ORDER)) {
-                product.setQuantity(product.getQuantity() - 1);
-                productRepository.save(product);
-            }
+            product.setQuantity(product.getQuantity() - 1);
+            productRepository.save(product);
             BigDecimal productOrderAmount = product.getPrice().multiply(BigDecimal.valueOf(productOrder.getQuantity())).setScale(3, RoundingMode.HALF_UP);
             totalAmount = totalAmount.add(productOrderAmount);
         }
@@ -103,11 +95,11 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId).get();
         command = command.toLowerCase(Locale.ROOT);
         if (command.equals(CHECKOUT)) {
-            if (order.getOrderStatus() != OrderStatus.IN_CART)
+            if (order.getOrderStatus() != OrderStatus.PENDING)
                 throw new OrderUpdateFailedException("Order with id " + orderId + " is no more in Cart");
-            else order.setOrderStatus(OrderStatus.CHECKED_OUT);
+            else order.setOrderStatus(OrderStatus.PROCESSING);
         } else if (command.equals(IN_TRANSIT)) {
-            if (order.getOrderStatus() != OrderStatus.CHECKED_OUT)
+            if (order.getOrderStatus() != OrderStatus.PROCESSING)
                 throw new OrderUpdateFailedException("Order with id " + orderId + " is no more in checked out state");
             else order.setOrderStatus(OrderStatus.IN_TRANSIT);
         } else if (command.equals(DELIVER)) {
@@ -134,13 +126,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderListingDto getAllOrders(Pageable pageable, String orderStatus) {
+    public BasePageableResponse<OrderResponseDto> getAllOrders(Pageable pageable, String orderStatus) {
         if (orderStatus.equalsIgnoreCase("all")) {
             return getOrderListingDto(orderRepository.findAll(pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.IN_CART.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.IN_CART, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.CHECKED_OUT.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.CHECKED_OUT, pageable));
+        } else if (orderStatus.equalsIgnoreCase(OrderStatus.PENDING.name())) {
+            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.PENDING, pageable));
+        } else if (orderStatus.equalsIgnoreCase(OrderStatus.PROCESSING.name())) {
+            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.PROCESSING, pageable));
         } else if (orderStatus.equalsIgnoreCase(OrderStatus.IN_TRANSIT.name())) {
             return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.IN_TRANSIT, pageable));
         } else if (orderStatus.equalsIgnoreCase(OrderStatus.DELIVERED.name())) {
@@ -153,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
         return getOrderListingDto(orderRepository.findAll(pageable));
     }
 
-    private OrderListingDto getOrderListingDto(Page<Order> pagedOrders) {
+    private BasePageableResponse<OrderResponseDto> getOrderListingDto(Page<Order> pagedOrders) {
         Page<OrderResponseDto> orderResponseDtos = pagedOrders.map((order -> {
             try {
                 return getOrderResponseDto(order);
@@ -162,11 +154,7 @@ public class OrderServiceImpl implements OrderService {
             }
             return null;
         }));
-        OrderListingDto orderListingDto = new OrderListingDto();
-        orderListingDto.setOrders(orderResponseDtos.getContent());
-        orderListingDto.setPageNumber(orderResponseDtos.getNumber());
-        orderListingDto.setPageSize(orderResponseDtos.getSize());
-        return orderListingDto;
+        return BasePageableResponse.instance(orderResponseDtos);
     }
 
     @Override
@@ -175,12 +163,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderListingDto getCustomerOrders(Long customerId, String orderStatus, Pageable pageable) throws UserNotFoundException, MapperException {
+    public BasePageableResponse<OrderResponseDto> getCustomerOrders(Long customerId, String orderStatus, Pageable pageable) throws UserNotFoundException, MapperException {
         customerService.findById(customerId);
-        if (orderStatus.equalsIgnoreCase(OrderStatus.IN_CART.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.IN_CART, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.CHECKED_OUT.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.CHECKED_OUT, pageable));
+        if (orderStatus.equalsIgnoreCase(OrderStatus.PENDING.name())) {
+            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.PENDING, pageable));
+        } else if (orderStatus.equalsIgnoreCase(OrderStatus.PROCESSING.name())) {
+            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.PROCESSING, pageable));
         } else if (orderStatus.equalsIgnoreCase(OrderStatus.IN_TRANSIT.name())) {
             return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.IN_TRANSIT, pageable));
         } else if (orderStatus.equalsIgnoreCase(OrderStatus.DELIVERED.name())) {

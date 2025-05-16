@@ -59,9 +59,8 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = new Customer();
         customer.setBioData(customerBioData);
         Customer savedCustomer = customerRepository.save(customer);
-        String savedCustomerAsString = martMapper.writeValueAsString(savedCustomer);
         try {
-            return martMapper.readValue(savedCustomerAsString, CustomerResponseDto.class);
+            return CustomerResponseDto.parse(savedCustomer);
         } catch (Exception ex) {
             throw new MartException(ex.getMessage());
         }

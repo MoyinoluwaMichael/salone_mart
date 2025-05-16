@@ -34,7 +34,10 @@ public class SecurityUtils {
     public static String[] getGetUrlWhiteList() {
         return new String[]{
                 "/api/v1/products",
-                "/api/v1/products/*"
+                "/api/v1/products/*",
+                "/api/v1/media/products/*",
+                "/api/v1/media/products/{productId}",
+                "/api/v1/products/{productId}"
         };
     }
 

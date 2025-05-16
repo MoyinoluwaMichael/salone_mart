@@ -1,6 +1,6 @@
 package africa.springCore.martbackend.portfolio.order.api;
 
-import africa.springCore.martbackend.core.domain.dtos.response.ApiResponse;
+import africa.springCore.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderCreationFailedException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderNotFoundException;
 import africa.springCore.martbackend.core.portfolio.order.exception.OrderUpdateFailedException;
@@ -8,8 +8,6 @@ import africa.springCore.martbackend.core.portfolio.product.exception.ProductNot
 import africa.springCore.martbackend.infrastructure.exception.MapperException;
 import africa.springCore.martbackend.infrastructure.exception.UserNotFoundException;
 import africa.springCore.martbackend.portfolio.order.domain.dtos.request.OrderCreationRequest;
-import africa.springCore.martbackend.portfolio.order.domain.dtos.request.ProductOrderCreationRequest;
-import africa.springCore.martbackend.portfolio.order.domain.dtos.response.OrderListingDto;
 import africa.springCore.martbackend.portfolio.order.domain.dtos.response.OrderResponseDto;
 import africa.springCore.martbackend.portfolio.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,12 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import static africa.springCore.martbackend.core.utils.Message.apiResponse;
 
-@RequestMapping("api/v1/")
+@RequestMapping("api/v1/orders")
 @RestController
 @RequiredArgsConstructor
 @Validated
@@ -35,7 +30,7 @@ public class OrderApiResource {
 
     private final OrderService orderService;
 
-    @PostMapping("customers/{customerId}/orders")
+    @PostMapping("{customerId}")
     @Operation(summary = "Post a New Order")
     public ResponseEntity<OrderResponseDto> postAnOrder(
             @PathVariable(name = "customerId") Long customerId,
@@ -45,16 +40,7 @@ public class OrderApiResource {
         return ResponseEntity.ok(orderResponseDto);
     }
 
-    @PostMapping("orders/calculateTotalAmount")
-    @Operation(summary = "Calculate total amount for one or more orders")
-    public ResponseEntity<ApiResponse> calculateTotalAmount(
-            @RequestBody List<ProductOrderCreationRequest> productOrders
-    ) throws MapperException, africa.springCore.martbackend.core.portfolio.product.exception.ProductNotFoundException {
-        BigDecimal totalAmount = orderService.calculateTotalAmount(productOrders, null);
-        return ResponseEntity.ok(apiResponse(totalAmount));
-    }
-
-    @GetMapping("orders/{id}")
+    @GetMapping("{id}")
     @Operation(summary = "Get order by ID")
     public ResponseEntity<OrderResponseDto> getOrderById(
             @PathVariable(name = "id") Long id
@@ -63,18 +49,18 @@ public class OrderApiResource {
         return ResponseEntity.ok(orderResponseDto);
     }
 
-    @GetMapping("orders")
+    @GetMapping
     @Operation(summary = "Get all orders by status")
-    public ResponseEntity<OrderListingDto> getAllOrders(
+    public ResponseEntity<BasePageableResponse<OrderResponseDto>> getAllOrders(
             @RequestParam(name = "orderStatus", defaultValue = "all") String orderStatus,
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     )  {
-        OrderListingDto orderListingDto = orderService.getAllOrders(pageable, orderStatus);
+        BasePageableResponse<OrderResponseDto> orderListingDto = orderService.getAllOrders(pageable, orderStatus);
         return ResponseEntity.ok(orderListingDto);
     }
 
 
-    @PatchMapping("orders/{orderId}")
+    @PatchMapping("{orderId}")
     @Operation(summary = "Update order status")
     public ResponseEntity<OrderResponseDto> updateOrderStatus(
             @PathVariable(name = "orderId") Long orderId,
@@ -84,14 +70,14 @@ public class OrderApiResource {
         return ResponseEntity.ok(orderResponseDto);
     }
 
-    @GetMapping("customers/{customerId}/orders")
+    @GetMapping("{customerId}")
     @Operation(summary = "Get all Customer's orders")
-    public ResponseEntity<OrderListingDto> getAllOrders(
+    public ResponseEntity<BasePageableResponse<OrderResponseDto>> getAllOrders(
             @PathVariable(name = "customerId") Long customerId,
-            @RequestParam(name = "orderStatus", defaultValue = "all") String orderStatus,
+            @RequestParam(name = "orderStatus", required = false) String orderStatus,
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) throws UserNotFoundException, MapperException {
-        OrderListingDto orderListingDto = orderService.getCustomerOrders(customerId, orderStatus, pageable);
+        BasePageableResponse<OrderResponseDto> orderListingDto = orderService.getCustomerOrders(customerId, orderStatus, pageable);
         return ResponseEntity.ok(orderListingDto);
     }
 

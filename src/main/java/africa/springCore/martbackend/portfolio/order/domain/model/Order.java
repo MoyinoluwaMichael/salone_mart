@@ -2,12 +2,14 @@ package africa.springCore.martbackend.portfolio.order.domain.model;
 
 import africa.springCore.martbackend.core.domain.enums.OrderStatus;
 import africa.springCore.martbackend.core.domain.model.BaseEntity;
+import africa.springCore.martbackend.portfolio.order.domain.dtos.request.OrderCreationRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serial;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "customer_order")
@@ -33,8 +35,11 @@ public class Order extends BaseEntity {
     @Column(name = "delivery_fee")
     private BigDecimal deliveryFee;
 
-    @Column(name = "total_amount")
-    private BigDecimal totalAmount;
+    @Column(name = "tax")
+    private BigDecimal tax;
+
+    @Column(name = "total_product_amount")
+    private BigDecimal totalProductAmount;
 
     @Column(name = "total_order_amount")
     private BigDecimal totalOrderAmount;
@@ -43,4 +48,18 @@ public class Order extends BaseEntity {
     @Column(name = "order_status")
     private OrderStatus orderStatus;
 
+    public static Order instance(OrderCreationRequest orderCreationRequest) {
+        Order order = new Order();
+        order.setProductOrders(
+                orderCreationRequest.getProductOrders()
+                        .stream()
+                        .map(ProductOrder::instance)
+                        .collect(Collectors.toList())
+        );
+        return order;
+    }
+
+    public void setTotalOrderAmount() {
+        this.totalOrderAmount = this.totalProductAmount.add(this.tax).add(this.deliveryFee);
+    }
 }
