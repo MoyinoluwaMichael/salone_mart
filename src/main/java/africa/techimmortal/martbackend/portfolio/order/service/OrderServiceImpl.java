@@ -74,6 +74,7 @@ public class OrderServiceImpl implements OrderService {
                             Product product = null;
                             try {
                                 product = productService.getProductById(productOrder.getProductId());
+                                System.err.println("Product quantity: " + product.getQuantity());
                             } catch (ProductNotFoundException | MapperException e) {
                                 throw new RuntimeException(e);
                             }
@@ -89,7 +90,9 @@ public class OrderServiceImpl implements OrderService {
         order = orderRepository.save(order);
         for (ProductOrderCreationRequest productOrder : orderCreationRequest.getProductOrders()) {
             Product product = productRepository.findById(productOrder.getProductId()).get();
+            System.err.println("Product quantity before: " + product.getQuantity());
             product.setQuantity(product.getQuantity() - productOrder.getQuantity());
+            System.err.println("Product quantity after: " + product.getQuantity());
             productRepository.save(product);
         }
         return martMapper.readValue(order, OrderResponseDto.class);
@@ -104,8 +107,6 @@ public class OrderServiceImpl implements OrderService {
         for (ProductOrderCreationRequest productOrder : productOrders) {
             productService.getProductById(productOrder.getProductId());
             Product product = productRepository.findById(productOrder.getProductId()).get();
-            product.setQuantity(product.getQuantity() - 1);
-            productRepository.save(product);
             BigDecimal productOrderAmount = product.getPrice().multiply(BigDecimal.valueOf(productOrder.getQuantity())).setScale(3, RoundingMode.HALF_UP);
             totalAmount = totalAmount.add(productOrderAmount);
         }
