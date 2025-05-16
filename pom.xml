@@ -135,7 +135,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>africa.springCore.martbackend.MartBackendApplication</mainClass>
+                            <mainClass>africa.techimmortal.martbackend.MartBackendApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
