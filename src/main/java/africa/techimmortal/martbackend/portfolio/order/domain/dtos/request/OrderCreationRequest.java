@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 public class OrderCreationRequest {
 
+    private Long customerId;
     private List<ProductOrderCreationRequest> productOrders;
 
 }

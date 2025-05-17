@@ -3,6 +3,7 @@ package africa.techimmortal.martbackend.portfolio.order.service;
 import africa.techimmortal.martbackend.core.domain.dtos.response.BasePageableResponse;
 import africa.techimmortal.martbackend.core.domain.enums.OrderStatus;
 import africa.techimmortal.martbackend.core.utils.MartMapper;
+import africa.techimmortal.martbackend.portfolio.customer.domain.dtos.responses.CustomerResponseDto;
 import africa.techimmortal.martbackend.portfolio.order.exception.OrderCreationFailedException;
 import africa.techimmortal.martbackend.portfolio.order.exception.OrderNotFoundException;
 import africa.techimmortal.martbackend.portfolio.order.exception.OrderUpdateFailedException;
@@ -19,6 +20,7 @@ import africa.techimmortal.martbackend.portfolio.order.domain.repository.OrderRe
 import africa.techimmortal.martbackend.portfolio.product.domain.model.Product;
 import africa.techimmortal.martbackend.portfolio.product.domain.repository.ProductRepository;
 import africa.techimmortal.martbackend.portfolio.product.service.ProductService;
+import africa.techimmortal.martbackend.portfolio.vendor.service.VendorService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,18 +49,21 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final CustomerService customerService;
+    private final VendorService vendorService;
 
 
     @Override
     @Transactional
-    public OrderResponseDto postAnOrder(Long customerId, OrderCreationRequest orderCreationRequest) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException {
-        customerService.findById(customerId);
+    public OrderResponseDto postAnOrder(OrderCreationRequest orderCreationRequest) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException {
+        Long customerId = orderCreationRequest.getCustomerId();
+        CustomerResponseDto customer = customerService.findById(customerId);
         BigDecimal taxRate = BigDecimal.valueOf(0.1);
         if (orderCreationRequest.getProductOrders().isEmpty()) {
             throw new OrderCreationFailedException("At least one product is required");
         }
         Order order = new Order();
         order.setCustomerId(customerId);
+        order.setCustomerName(customer.getBioData().getFullName());
         BigDecimal totalAmount = calculateTotalAmount(orderCreationRequest.getProductOrders());
         order.setTotalProductAmount(totalAmount);
         order.setOrderStatus(OrderStatus.PENDING);
@@ -150,23 +155,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public BasePageableResponse<OrderResponseDto> retrieveAllVendorOrders(Long vendorId, String orderStatus, Pageable pageable) throws UserNotFoundException, MapperException {
+        vendorService.findById(vendorId);
+        if ("all".equalsIgnoreCase(orderStatus)) {
+            return getOrderListingDto(orderRepository.findAllByProductOrders_VendorId(vendorId, pageable));
+        }
+        else {
+            OrderStatus status = OrderStatus.parse(orderStatus);
+            return getOrderListingDto(orderRepository.findAllByProductOrders_VendorIdAndOrderStatus(vendorId, status, pageable));
+        }
+    }
+
+    @Override
     public BasePageableResponse<OrderResponseDto> getAllOrders(Pageable pageable, String orderStatus) {
         if (orderStatus.equalsIgnoreCase("all")) {
             return getOrderListingDto(orderRepository.findAll(pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.PENDING.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.PENDING, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.PROCESSING.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.PROCESSING, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.IN_TRANSIT.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.IN_TRANSIT, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.DELIVERED.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.DELIVERED, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.CANCELED.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.CANCELED, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.COMPLETED.name())) {
-            return getOrderListingDto(orderRepository.findAllByOrderStatus(OrderStatus.COMPLETED, pageable));
+        } else {
+            OrderStatus status = OrderStatus.parse(orderStatus);
+            return getOrderListingDto(orderRepository.findAllByOrderStatus(status, pageable));
         }
-        return getOrderListingDto(orderRepository.findAll(pageable));
     }
 
     private BasePageableResponse<OrderResponseDto> getOrderListingDto(Page<Order> pagedOrders) {
@@ -189,19 +196,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public BasePageableResponse<OrderResponseDto> getCustomerOrders(Long customerId, String orderStatus, Pageable pageable) throws UserNotFoundException, MapperException {
         customerService.findById(customerId);
-        if (orderStatus.equalsIgnoreCase(OrderStatus.PENDING.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.PENDING, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.PROCESSING.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.PROCESSING, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.IN_TRANSIT.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.IN_TRANSIT, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.DELIVERED.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.DELIVERED, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.CANCELED.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.CANCELED, pageable));
-        } else if (orderStatus.equalsIgnoreCase(OrderStatus.COMPLETED.name())) {
-            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, OrderStatus.COMPLETED, pageable));
+        if ("all".equalsIgnoreCase(orderStatus)) {
+            return getOrderListingDto(orderRepository.findAllByCustomerId(customerId, pageable));
+        } else {
+            OrderStatus status = OrderStatus.parse(orderStatus);
+            return getOrderListingDto(orderRepository.findAllByCustomerIdAndOrderStatus(customerId, status, pageable));
         }
-        return getOrderListingDto(orderRepository.findAllByCustomerId(customerId, pageable));
     }
 }

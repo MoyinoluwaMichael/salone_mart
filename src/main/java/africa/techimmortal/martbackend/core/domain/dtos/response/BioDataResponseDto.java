@@ -38,4 +38,8 @@ public class BioDataResponseDto {
         responseDto.setDisplayPicture(foundBioData.getDisplayPicture() == null ? null : foundBioData.getDisplayPicture().getSecureUrl());
         return responseDto;
     }
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
 }

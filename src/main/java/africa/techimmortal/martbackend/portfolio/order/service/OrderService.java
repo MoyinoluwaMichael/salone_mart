@@ -12,7 +12,7 @@ import africa.techimmortal.martbackend.portfolio.order.domain.dtos.response.Orde
 import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
-    OrderResponseDto postAnOrder(Long customerId, OrderCreationRequest orderCreationRequest) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException;
+    OrderResponseDto postAnOrder(OrderCreationRequest orderCreationRequest) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException;
 
     BasePageableResponse<OrderResponseDto> getAllOrders(Pageable pageable, String orderStatus);
 
@@ -24,4 +24,5 @@ public interface OrderService {
 
     Long retrieveTotalOrders();
 
+    BasePageableResponse<OrderResponseDto> retrieveAllVendorOrders(Long vendorId, String orderStatus, Pageable pageable) throws UserNotFoundException, MapperException;
 }
