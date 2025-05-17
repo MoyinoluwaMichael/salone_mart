@@ -30,13 +30,12 @@ public class OrderApiResource {
 
     private final OrderService orderService;
 
-    @PostMapping("{customerId}")
+    @PostMapping("")
     @Operation(summary = "Post a New Order")
     public ResponseEntity<OrderResponseDto> postAnOrder(
-            @PathVariable(name = "customerId") Long customerId,
             @Valid @RequestBody OrderCreationRequest orderCreationRequest
     ) throws MapperException, ProductNotFoundException, UserNotFoundException, OrderCreationFailedException {
-        OrderResponseDto orderResponseDto = orderService.postAnOrder(customerId, orderCreationRequest);
+        OrderResponseDto orderResponseDto = orderService.postAnOrder(orderCreationRequest);
         return ResponseEntity.ok(orderResponseDto);
     }
 
@@ -78,6 +77,18 @@ public class OrderApiResource {
             @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) throws UserNotFoundException, MapperException {
         BasePageableResponse<OrderResponseDto> orderListingDto = orderService.getCustomerOrders(customerId, orderStatus, pageable);
+        return ResponseEntity.ok(orderListingDto);
+    }
+
+
+    @GetMapping("/vendors/{vendorId}")
+    @Operation(summary = "Get all Customer's orders")
+    public ResponseEntity<BasePageableResponse<OrderResponseDto>> retrieveAllVendorOrders(
+            @PathVariable(name = "vendorId") Long vendorId,
+            @RequestParam(name = "orderStatus", defaultValue = "all") String orderStatus,
+            @PageableDefault(size = 10, page = 0, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) throws UserNotFoundException, MapperException {
+        BasePageableResponse<OrderResponseDto> orderListingDto = orderService.retrieveAllVendorOrders(vendorId, orderStatus, pageable);
         return ResponseEntity.ok(orderListingDto);
     }
 

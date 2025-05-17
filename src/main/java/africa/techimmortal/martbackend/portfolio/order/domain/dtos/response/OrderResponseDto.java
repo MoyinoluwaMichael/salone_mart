@@ -23,6 +23,8 @@ public class OrderResponseDto {
 
     private Long customerId;
 
+    private String customerName;
+
     private List<ProductOrderResponseDto> productOrders;
 
     private BigDecimal deliveryFee;
